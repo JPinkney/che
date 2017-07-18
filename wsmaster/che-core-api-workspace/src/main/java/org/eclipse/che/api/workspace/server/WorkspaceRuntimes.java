@@ -30,6 +30,7 @@ import org.eclipse.che.api.workspace.server.spi.InternalRuntime;
 import org.eclipse.che.api.workspace.server.spi.RuntimeContext;
 import org.eclipse.che.api.workspace.server.spi.RuntimeIdentityImpl;
 import org.eclipse.che.api.workspace.server.spi.RuntimeInfrastructure;
+import org.eclipse.che.api.workspace.server.spi.RuntimeStartInterruptedException;
 import org.eclipse.che.api.workspace.shared.dto.event.RuntimeStatusEvent;
 import org.eclipse.che.api.workspace.shared.dto.event.WorkspaceStatusEvent;
 import org.eclipse.che.commons.env.EnvironmentContext;
@@ -225,13 +226,17 @@ public class WorkspaceRuntimes {
                                                    .withStatus(WorkspaceStatus.RUNNING)
                                                    .withPrevStatus(STARTING));
                 } catch (InfrastructureException e) {
+                    boolean propagate = !(e instanceof RuntimeStartInterruptedException);
                     runtimes.remove(workspaceId);
-                    eventService.publish(DtoFactory.newDto(WorkspaceStatusEvent.class)
-                                                   .withWorkspaceId(workspaceId)
-                                                   .withStatus(STOPPED)
-                                                   .withPrevStatus(STARTING)
-                                                   .withError(e.getMessage()));
-                    throw new RuntimeException(e);
+                    WorkspaceStatusEvent event = DtoFactory.newDto(WorkspaceStatusEvent.class)
+                                                           .withWorkspaceId(workspaceId)
+                                                           .withStatus(STOPPED)
+                                                           .withPrevStatus(STARTING);
+                    if (propagate) {
+                        eventService.publish(event.withError(e.getMessage()));
+                        throw new RuntimeException(e);
+                    }
+                    eventService.publish(event);
                 }
             }), sharedPool.getExecutor());
             //TODO made complete rework of exceptions.
@@ -268,7 +273,7 @@ public class WorkspaceRuntimes {
         if (state == null) {
             throw new NotFoundException("Workspace with id '" + workspaceId + "' is not running.");
         }
-        if (!state.status.equals(RUNNING)) {
+        if (!state.status.equals(RUNNING) && !state.status.equals(STARTING)) {
             throw new ConflictException(
                     format("Could not stop workspace '%s' because its state is '%s'", workspaceId, state.status));
         }
@@ -280,7 +285,7 @@ public class WorkspaceRuntimes {
         }
         eventService.publish(DtoFactory.newDto(WorkspaceStatusEvent.class)
                                        .withWorkspaceId(workspaceId)
-                                       .withPrevStatus(WorkspaceStatus.RUNNING)
+                                       .withPrevStatus(state.status)
                                        .withStatus(WorkspaceStatus.STOPPING));
 
         try {
@@ -293,14 +298,18 @@ public class WorkspaceRuntimes {
                                            .withPrevStatus(WorkspaceStatus.STOPPING)
                                            .withStatus(STOPPED));
         } catch (InfrastructureException e) {
+            boolean propagate = !(e instanceof RuntimeStartInterruptedException);
+
             // remove before firing an event to have consistency between state and the event
             runtimes.remove(workspaceId);
-            eventService.publish(DtoFactory.newDto(WorkspaceStatusEvent.class)
-                                           .withWorkspaceId(workspaceId)
-                                           .withPrevStatus(WorkspaceStatus.STOPPING)
-                                           .withStatus(STOPPED)
-                                           .withError("Error occurs on workspace runtime stop. Error: " +
-                                                      e.getMessage()));
+            if (propagate) {
+                eventService.publish(DtoFactory.newDto(WorkspaceStatusEvent.class)
+                                               .withWorkspaceId(workspaceId)
+                                               .withPrevStatus(WorkspaceStatus.STOPPING)
+                                               .withStatus(STOPPED)
+                                               .withError("Error occurs on workspace runtime stop. Error: " +
+                                                          e.getMessage()));
+            }
         }
     }
 
