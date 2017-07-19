@@ -87,6 +87,7 @@ import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.ListBranchCommand.ListMode;
 import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.LsRemoteCommand;
+import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.RebaseCommand;
 import org.eclipse.jgit.api.RebaseResult;
@@ -1141,6 +1142,8 @@ class JGitConnection implements GitConnection {
                 fetchCommand.setTimeout(timeout);
             }
 
+            PullResult call = getGit().pull().setRebase(params.getRebase()).setRemote(refSpec).setRemoteBranchName(branch).call();
+
             FetchResult fetchResult = (FetchResult)executeRemoteCommand(remoteUri,
                                                                         fetchCommand,
                                                                         params.getUsername(),
@@ -1186,6 +1189,8 @@ class JGitConnection implements GitConnection {
             throw new GitException(errorMessage, exception);
         }
         return newDto(PullResponse.class).withCommandOutput("Successfully pulled from " + remoteUri);
+
+
     }
 
     @Override
