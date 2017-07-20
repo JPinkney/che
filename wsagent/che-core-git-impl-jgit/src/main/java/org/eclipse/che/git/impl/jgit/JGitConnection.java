@@ -61,6 +61,7 @@ import org.eclipse.che.api.git.shared.DiffCommitFile;
 import org.eclipse.che.api.git.shared.GitUser;
 import org.eclipse.che.api.git.shared.MergeResult;
 import org.eclipse.che.api.git.shared.ProviderInfo;
+import org.eclipse.che.api.git.shared.PullRequest;
 import org.eclipse.che.api.git.shared.PullResponse;
 import org.eclipse.che.api.git.shared.PushResponse;
 import org.eclipse.che.api.git.shared.RebaseResponse;
@@ -87,6 +88,7 @@ import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.ListBranchCommand.ListMode;
 import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.LsRemoteCommand;
+import org.eclipse.jgit.api.PullCommand;
 import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.RebaseCommand;
@@ -187,6 +189,13 @@ import static org.eclipse.che.api.git.shared.BranchListMode.LIST_REMOTE;
 import static org.eclipse.che.api.git.shared.ProviderInfo.AUTHENTICATE_URL;
 import static org.eclipse.che.api.git.shared.ProviderInfo.PROVIDER_NAME;
 import static org.eclipse.che.dto.server.DtoFactory.newDto;
+import static org.eclipse.jgit.api.MergeResult.MergeStatus.ALREADY_UP_TO_DATE;
+import static org.eclipse.jgit.api.MergeResult.MergeStatus.CONFLICTING;
+import static org.eclipse.jgit.api.RebaseResult.Status.CONFLICTS;
+import static org.eclipse.jgit.api.RebaseResult.Status.FAILED;
+import static org.eclipse.jgit.api.RebaseResult.Status.STOPPED;
+import static org.eclipse.jgit.api.RebaseResult.Status.UNCOMMITTED_CHANGES;
+import static org.eclipse.jgit.api.RebaseResult.Status.UP_TO_DATE;
 
 /**
  * @author Andrey Parfonov
@@ -216,7 +225,9 @@ class JGitConnection implements GitConnection {
     private static final String ERROR_PULL_MERGING                 = "Could not pull because the repository state is 'MERGING'.";
     private static final String ERROR_PULL_HEAD_DETACHED           = "Could not pull because HEAD is detached.";
     private static final String ERROR_PULL_REF_MISSING             = "Could not pull because remote ref is missing for branch %s.";
+    private static final String ERROR_PULL_UNCOMMITED_CHANGES      = "Could not pull with rebase because uncommited changes are present.";
     private static final String ERROR_PULL_AUTO_MERGE_FAILED       = "Automatic merge failed; fix conflicts and then commit the result.";
+    private static final String ERROR_PULL_AUTO_REBASE_FAILED      = "Automatic rebase failed.";
     private static final String ERROR_PULL_MERGE_CONFLICT_IN_FILES = "Could not pull because a merge conflict is detected in the files:";
     private static final String ERROR_PULL_COMMIT_BEFORE_MERGE     = "Could not pull. Commit your changes before merging.";
 
@@ -1116,39 +1127,32 @@ class JGitConnection implements GitConnection {
             remoteUri = config.getString(ConfigConstants.CONFIG_REMOTE_SECTION, remoteName, ConfigConstants.CONFIG_KEY_URL);
 
             String remoteBranch;
-            RefSpec fetchRefSpecs = null;
             String refSpec = params.getRefSpec();
             if (refSpec != null) {
-                fetchRefSpecs = (refSpec.indexOf(':') < 0) //
-                                ? new RefSpec(Constants.R_HEADS + refSpec + ":" + fullBranch) //
-                                : new RefSpec(refSpec);
+                RefSpec fetchRefSpecs = (refSpec.indexOf(':') < 0) //
+                                        ? new RefSpec(Constants.R_HEADS + refSpec + ":" + fullBranch) //
+                                        : new RefSpec(refSpec);
                 remoteBranch = fetchRefSpecs.getSource();
             } else {
-                remoteBranch = config.getString(ConfigConstants.CONFIG_BRANCH_SECTION, branch,
-                                                ConfigConstants.CONFIG_KEY_MERGE);
+                remoteBranch = config.getString(ConfigConstants.CONFIG_BRANCH_SECTION, branch, ConfigConstants.CONFIG_KEY_MERGE);
             }
 
             if (remoteBranch == null) {
                 remoteBranch = fullBranch;
             }
 
-            FetchCommand fetchCommand = getGit().fetch();
-            fetchCommand.setRemote(remoteName);
-            if (fetchRefSpecs != null) {
-                fetchCommand.setRefSpecs(fetchRefSpecs);
-            }
-            int timeout = params.getTimeout();
-            if (timeout > 0) {
-                fetchCommand.setTimeout(timeout);
-            }
+            PullCommand pullCommand = getGit().pull()
+                                              .setTimeout(params.getTimeout() > 0 ? params.getTimeout() : -1)
+                                              .setRebase(params.getRebase())
+                                              .setRemote(params.getRemote())
+                                              .setRemoteBranchName(branch);
 
-            PullResult call = getGit().pull().setRebase(params.getRebase()).setRemote(refSpec).setRemoteBranchName(branch).call();
+            PullResult pullResult = (PullResult)executeRemoteCommand(remoteUri,
+                                                                     pullCommand,
+                                                                     params.getUsername(),
+                                                                     params.getPassword());
 
-            FetchResult fetchResult = (FetchResult)executeRemoteCommand(remoteUri,
-                                                                        fetchCommand,
-                                                                        params.getUsername(),
-                                                                        params.getPassword());
-
+            FetchResult fetchResult = pullResult.getFetchResult();
             Ref remoteBranchRef = fetchResult.getAdvertisedRef(remoteBranch);
             if (remoteBranchRef == null) {
                 remoteBranchRef = fetchResult.getAdvertisedRef(Constants.R_HEADS + remoteBranch);
@@ -1156,20 +1160,33 @@ class JGitConnection implements GitConnection {
             if (remoteBranchRef == null) {
                 throw new GitException(format(ERROR_PULL_REF_MISSING, remoteBranch));
             }
-            org.eclipse.jgit.api.MergeResult mergeResult = getGit().merge().include(remoteBranchRef).call();
-            if (mergeResult.getMergeStatus().equals(org.eclipse.jgit.api.MergeResult.MergeStatus.ALREADY_UP_TO_DATE)) {
-                return newDto(PullResponse.class).withCommandOutput("Already up-to-date");
-            }
-
-            if (mergeResult.getConflicts() != null) {
-                StringBuilder message = new StringBuilder(ERROR_PULL_MERGE_CONFLICT_IN_FILES);
-                message.append(lineSeparator());
-                Map<String, int[][]> allConflicts = mergeResult.getConflicts();
-                for (String path : allConflicts.keySet()) {
-                    message.append(path).append(lineSeparator());
+            if (params.getRebase()) {
+                RebaseResult rebaseResult = pullResult.getRebaseResult();
+                RebaseResult.Status status = rebaseResult.getStatus();
+                if (status == UP_TO_DATE) {
+                    return newDto(PullResponse.class).withCommandOutput("Already up-to-date");
+                } else if (status == UNCOMMITTED_CHANGES) {
+                    throw new GitException(ERROR_PULL_UNCOMMITED_CHANGES);
+                } else if (status == STOPPED || status == FAILED) {
+                    if (repository.getRepositoryState() != RepositoryState.SAFE) {
+                        rebase(REBASE_OPERATION_ABORT, null);
+                    }
+                    throw new GitException(ERROR_PULL_AUTO_REBASE_FAILED);
                 }
-                message.append(ERROR_PULL_AUTO_MERGE_FAILED);
-                throw new GitException(message.toString());
+            } else {
+                org.eclipse.jgit.api.MergeResult mergeResult = pullResult.getMergeResult();
+                if (mergeResult.getMergeStatus() == ALREADY_UP_TO_DATE) {
+                    return newDto(PullResponse.class).withCommandOutput("Already up-to-date");
+                }
+                if (mergeResult.getConflicts() != null) {
+                    String errorMessage = mergeResult.getConflicts()
+                                                     .keySet()
+                                                     .stream()
+                                                     .collect(Collectors.joining(lineSeparator()))
+                                                     .concat(lineSeparator())
+                                                     .concat(ERROR_PULL_AUTO_MERGE_FAILED);
+                    throw new GitException(errorMessage);
+                }
             }
         } catch (CheckoutConflictException exception) {
             StringBuilder message = new StringBuilder(ERROR_CHECKOUT_CONFLICT);
