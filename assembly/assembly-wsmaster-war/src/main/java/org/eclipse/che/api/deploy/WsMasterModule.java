@@ -18,6 +18,7 @@ import com.google.inject.name.Names;
 import org.eclipse.che.api.agent.GitCredentialsAgent;
 import org.eclipse.che.api.agent.LSCSharpAgent;
 import org.eclipse.che.api.agent.LSJsonAgent;
+import org.eclipse.che.api.agent.LSYamlAgent;
 import org.eclipse.che.api.agent.LSPhpAgent;
 import org.eclipse.che.api.agent.LSPythonAgent;
 import org.eclipse.che.api.agent.LSTypeScriptAgent;
@@ -156,6 +157,7 @@ public class WsMasterModule extends AbstractModule {
         agents.addBinding().to(LSPhpAgent.class);
         agents.addBinding().to(LSPythonAgent.class);
         agents.addBinding().to(LSJsonAgent.class);
+        agents.addBinding().to(LSYamlAgent.class);
         agents.addBinding().to(LSCSharpAgent.class);
         agents.addBinding().to(LSTypeScriptAgent.class);
         agents.addBinding().to(GitCredentialsAgent.class);
