@@ -48,8 +48,6 @@ public class YamlLanguageServerLauncher extends LanguageServerLauncherTemplate i
 
     private final Path launchScript;
 
-    private LanguageServer yamlServer;
-
     @Inject
     public YamlLanguageServerLauncher() {
         launchScript = Paths.get(System.getenv("HOME"), "che/ls-yaml/launch.sh");
@@ -65,8 +63,7 @@ public class YamlLanguageServerLauncher extends LanguageServerLauncherTemplate i
                                                                     languageServerProcess.getInputStream(),
                                                                     languageServerProcess.getOutputStream());
         launcher.startListening();
-        yamlServer = launcher.getRemoteProxy();
-        return yamlServer;
+        return launcher.getRemoteProxy();
     }
 
     protected Process startLanguageServerProcess(String projectPath) throws LanguageServerException {
@@ -86,18 +83,6 @@ public class YamlLanguageServerLauncher extends LanguageServerLauncherTemplate i
                                     ServerCapabilities capabilities,
                                     String projectPath) {
         Endpoint endpoint = ServiceEndpoints.toEndpoint(server);
-        YamlExtension serviceObject = ServiceEndpoints.toServiceObject(endpoint, YamlExtension.class);
-        Map<String, String[]> associations = new HashMap<>();
-        associations.put("/kubernetes.yaml", new String[]{"http://central.maven.org/maven2/io/fabric8/kubernetes-model/1.1.0/kubernetes-model-1.1.0-schema.json"});
-        serviceObject.yamlSchemaAssociation(associations);
-    }
-
-    public LanguageServer yamlServer(){
-        return this.yamlServer;
-    }
-
-    public void yamlSchemaAssociations(){
-        Endpoint endpoint = ServiceEndpoints.toEndpoint(yamlServer());
         YamlExtension serviceObject = ServiceEndpoints.toServiceObject(endpoint, YamlExtension.class);
         Map<String, String[]> associations = new HashMap<>();
         associations.put("/kubernetes.yaml", new String[]{"http://central.maven.org/maven2/io/fabric8/kubernetes-model/1.1.0/kubernetes-model-1.1.0-schema.json"});

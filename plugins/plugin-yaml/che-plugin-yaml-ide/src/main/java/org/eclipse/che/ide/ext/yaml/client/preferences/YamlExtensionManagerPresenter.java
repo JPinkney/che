@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.git.client.preferences;
+package org.eclipse.che.ide.ext.yaml.client.preferences;
 
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
@@ -19,7 +19,7 @@ import org.eclipse.che.ide.api.dialogs.DialogFactory;
 import org.eclipse.che.ide.api.dialogs.InputCallback;
 import org.eclipse.che.ide.api.preferences.AbstractPreferencePagePresenter;
 import org.eclipse.che.ide.api.preferences.PreferencesManager;
-import org.eclipse.che.ide.ext.git.client.YamlLocalizationConstant;
+import org.eclipse.che.ide.ext.yaml.client.YamlLocalizationConstant;
 import org.eclipse.che.ide.json.JsonHelper;
 
 import javax.validation.constraints.NotNull;
@@ -47,7 +47,7 @@ public class YamlExtensionManagerPresenter extends AbstractPreferencePagePresent
                                          DialogFactory dialogFactory,
                                          PreferencesManager preferencesManager,
                                          YamlLocalizationConstant ylc) {
-        super("Yaml", "language Server Settings");
+        super("Yaml", "Language Server Settings");
         this.view = view;
         this.dialogFactory = dialogFactory;
         this.view.setDelegate(this);

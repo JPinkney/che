@@ -1024,7 +1024,7 @@
             </dependency>
             <dependency>
                 <groupId>org.eclipse.che.plugin</groupId>
-                <artifactId>che-plugin-yaml-client</artifactId>
+                <artifactId>che-plugin-yaml-ide</artifactId>
                 <version>${che.version}</version>
             </dependency>
             <dependency>

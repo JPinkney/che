@@ -1,4 +1,4 @@
-package org.eclipse.che.ide.ext.git.client.preferences;
+package org.eclipse.che.ide.ext.yaml.client.preferences;
 
 public class YamlPreference {
 

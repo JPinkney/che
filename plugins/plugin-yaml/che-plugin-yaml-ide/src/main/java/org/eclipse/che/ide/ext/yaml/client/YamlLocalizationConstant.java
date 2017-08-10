@@ -1,4 +1,4 @@
-package org.eclipse.che.ide.ext.git.client;
+package org.eclipse.che.ide.ext.yaml.client;
 
 import com.google.gwt.i18n.client.Messages;
 
