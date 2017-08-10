@@ -13,6 +13,7 @@ package org.eclipse.che.ide.ext.yaml.client.preferences;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.api.dialogs.CancelCallback;
 import org.eclipse.che.ide.api.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.api.dialogs.DialogFactory;
@@ -40,6 +41,7 @@ public class YamlExtensionManagerPresenter extends AbstractPreferencePagePresent
     private PreferencesManager preferencesManager;
     private List<YamlPreference> yamlPreferences;
     private YamlLocalizationConstant ylc;
+    //private DtoFactory dto;
     private boolean dirty = false;
 
     @Inject
@@ -52,6 +54,7 @@ public class YamlExtensionManagerPresenter extends AbstractPreferencePagePresent
         this.dialogFactory = dialogFactory;
         this.view.setDelegate(this);
         this.ylc = ylc;
+        //this.dto = dto;
         this.preferencesManager = preferencesManager;
         if(preferencesManager.getValue(preferenceName) == null){
             this.yamlPreferences = new ArrayList<YamlPreference>();
@@ -69,6 +72,7 @@ public class YamlExtensionManagerPresenter extends AbstractPreferencePagePresent
                     public void accepted() {
                         deleteKey(pairKey);
                         refreshTable();
+                        setSchemas();
                         dirty = true;
                         delegate.onDirtyChanged();
                     }
@@ -99,6 +103,7 @@ public class YamlExtensionManagerPresenter extends AbstractPreferencePagePresent
                     public void accepted(String url) {
                         addUrl(url);
                         refreshTable();
+                        setSchemas();
                         dirty = true;
                         delegate.onDirtyChanged();
                     }
@@ -107,6 +112,12 @@ public class YamlExtensionManagerPresenter extends AbstractPreferencePagePresent
                 .show();
     }
 
+    private void setSchemas(){
+        Map<String, String> schemaMap = new HashMap<String, String>();
+        schemaMap.put("/kubernetes.yaml", "http://central.maven.org/maven2/io/fabric8/kubernetes-model/1.1.0/kubernetes-model-1.1.0-schema.json");
+        //dto.createDto(YamlDTO.class).setSchemas(schemaMap);
+        //SchemaAssociations.updateServerSchemas();
+    }
 
     /** {@inheritDoc} */
     @Override

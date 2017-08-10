@@ -8,16 +8,14 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.yaml.client;
+package org.eclipse.che.plugin.yaml.shared;
 
-import com.google.gwt.i18n.client.Messages;
+import org.eclipse.che.dto.shared.DTO;
 
-public interface YamlLocalizationConstant extends Messages {
+import java.util.Map;
 
-    @Key("addUrlText")
-    String addUrlText();
-
-    @Key("deleteUrl")
-    String deleteUrl();
-
+@DTO
+public interface YamlDTO {
+    Map<String, String> getSchemas();
+    void setSchemas(Map<String, String> yamlSchemas);
 }

@@ -23,6 +23,7 @@
     <packaging>pom</packaging>
     <name>Che Plugin :: YAML :: Parent</name>
     <modules>
+        <module>che-plugin-yaml-shared</module>
         <module>che-plugin-yaml-ide</module>
         <module>che-plugin-yaml-server</module>
     </modules>
