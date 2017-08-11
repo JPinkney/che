@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.yaml.client.preferences;
+package org.eclipse.che.ide.ext.yaml.ide.preferences;
 
 import org.eclipse.che.ide.api.mvp.View;
 import javax.validation.constraints.NotNull;

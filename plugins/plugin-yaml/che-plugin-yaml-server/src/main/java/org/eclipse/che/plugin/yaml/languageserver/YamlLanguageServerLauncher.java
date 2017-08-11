@@ -77,7 +77,7 @@ public class YamlLanguageServerLauncher extends LanguageServerLauncherTemplate i
     }
 
     private void setYamlLanguageServer(LanguageServer yamlServer){
-        SchemaAssociations.setYamlLanguageServer(yamlServer);
+        //SchemaAssociations.setYamlLanguageServer(yamlServer);
     }
 
     protected Process startLanguageServerProcess(String projectPath) throws LanguageServerException {
@@ -100,7 +100,7 @@ public class YamlLanguageServerLauncher extends LanguageServerLauncherTemplate i
         org.eclipse.che.plugin.yaml.shared.YamlSchemaAssociations serviceObject = ServiceEndpoints.toServiceObject(endpoint, org.eclipse.che.plugin.yaml.shared.YamlSchemaAssociations.class);
         Map<String, String[]> associations = new HashMap<>();
         associations.put("/composer.yaml", new String[]{"http://json.schemastore.org/composer"});
-        serviceObject.yamlSchemaAssociation(associations);
+        //serviceObject.yamlSchemaAssociation(associations);
     }
 
     public LanguageServerDescription getDescription() {

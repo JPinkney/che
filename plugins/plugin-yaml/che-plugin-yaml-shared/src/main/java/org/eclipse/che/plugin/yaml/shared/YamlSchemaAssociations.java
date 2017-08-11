@@ -19,7 +19,7 @@ import java.util.Map;
  */
 public interface YamlSchemaAssociations {
 
-    @JsonNotification(value="json/schemaAssociations", useSegment = false)
-    void yamlSchemaAssociation(Map<String, String[]> associations);
+    //@JsonNotification(value="json/schemaAssociations", useSegment = false)
+    //void yamlSchemaAssociation(Map<String, String[]> associations);
 
 }

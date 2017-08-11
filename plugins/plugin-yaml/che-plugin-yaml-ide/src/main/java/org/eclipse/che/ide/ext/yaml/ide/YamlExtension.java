@@ -8,24 +8,21 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.yaml.client.preferences;
+package org.eclipse.che.ide.ext.yaml.ide;
 
-public class YamlPreference {
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import org.eclipse.che.ide.api.extension.Extension;
+/**
+ * Extension add Git support to the IDE Application.
+ *
+ * @author Andrey Plotnikov
+ */
+@Singleton
+@Extension(title = "Yaml", version = "3.0.0")
+public class YamlExtension {
+    @Inject
+    public YamlExtension() {
 
-    private final String url;
-    private final String glob;
-
-    public YamlPreference(String url, String glob){
-        this.url = url;
-        this.glob = glob;
     }
-
-    public String getUrl(){
-        return this.url;
-    }
-
-    public String getGlob(){
-        return this.glob;
-    }
-
 }

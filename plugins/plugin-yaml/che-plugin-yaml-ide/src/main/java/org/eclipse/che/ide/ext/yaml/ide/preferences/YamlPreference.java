@@ -8,16 +8,24 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.yaml.client;
+package org.eclipse.che.ide.ext.yaml.ide.preferences;
 
-import com.google.gwt.i18n.client.Messages;
+public class YamlPreference {
 
-public interface YamlLocalizationConstant extends Messages {
+    private final String url;
+    private final String glob;
 
-    @Key("addUrlText")
-    String addUrlText();
+    public YamlPreference(String url, String glob){
+        this.url = url;
+        this.glob = glob;
+    }
 
-    @Key("deleteUrl")
-    String deleteUrl();
+    public String getUrl(){
+        return this.url;
+    }
+
+    public String getGlob(){
+        return this.glob;
+    }
 
 }

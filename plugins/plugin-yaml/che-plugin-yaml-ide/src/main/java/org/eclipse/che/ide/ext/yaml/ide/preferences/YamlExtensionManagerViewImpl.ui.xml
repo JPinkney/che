@@ -16,7 +16,7 @@
              xmlns:svgui='urn:import:org.vectomatic.dom.svg.ui'
              xmlns:p1='urn:import:com.google.gwt.user.cellview.client'>
     <ui:with field='locale'
-             type='org.eclipse.che.ide.ext.yaml.client.YamlLocalizationConstant'/>
+             type='org.eclipse.che.ide.ext.yaml.ide.YamlLocalizationConstant'/>
     <ui:style src="org/eclipse/che/ide/api/ui/style.css">
 
         .alignRight {

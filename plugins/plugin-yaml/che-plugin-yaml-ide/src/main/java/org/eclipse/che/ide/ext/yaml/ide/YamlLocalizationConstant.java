@@ -8,21 +8,16 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.yaml.client;
+package org.eclipse.che.ide.ext.yaml.ide;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import org.eclipse.che.ide.api.extension.Extension;
-/**
- * Extension add Git support to the IDE Application.
- *
- * @author Andrey Plotnikov
- */
-@Singleton
-@Extension(title = "Yaml", version = "3.0.0")
-public class YamlExtension {
-    @Inject
-    public YamlExtension() {
+import com.google.gwt.i18n.client.Messages;
 
-    }
+public interface YamlLocalizationConstant extends Messages {
+
+    @Key("addUrlText")
+    String addUrlText();
+
+    @Key("deleteUrl")
+    String deleteUrl();
+
 }

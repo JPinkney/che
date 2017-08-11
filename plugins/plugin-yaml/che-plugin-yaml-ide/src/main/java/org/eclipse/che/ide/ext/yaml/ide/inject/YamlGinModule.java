@@ -8,16 +8,16 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.yaml.client.inject;
+package org.eclipse.che.ide.ext.yaml.ide.inject;
 
 import com.google.gwt.inject.client.AbstractGinModule;
 import com.google.gwt.inject.client.multibindings.GinMultibinder;
 import com.google.inject.Singleton;
 import org.eclipse.che.ide.api.extension.ExtensionGinModule;
 import org.eclipse.che.ide.api.preferences.PreferencePagePresenter;
-import org.eclipse.che.ide.ext.yaml.client.preferences.YamlExtensionManagerPresenter;
-import org.eclipse.che.ide.ext.yaml.client.preferences.YamlExtensionManagerView;
-import org.eclipse.che.ide.ext.yaml.client.preferences.YamlExtensionManagerViewImpl;
+import org.eclipse.che.ide.ext.yaml.ide.preferences.YamlExtensionManagerPresenter;
+import org.eclipse.che.ide.ext.yaml.ide.preferences.YamlExtensionManagerView;
+import org.eclipse.che.ide.ext.yaml.ide.preferences.YamlExtensionManagerViewImpl;
 
 /** @author Andrey Plotnikov */
 @ExtensionGinModule
