@@ -15,6 +15,8 @@ import com.google.gwt.inject.client.multibindings.GinMultibinder;
 import com.google.inject.Singleton;
 import org.eclipse.che.ide.api.extension.ExtensionGinModule;
 import org.eclipse.che.ide.api.preferences.PreferencePagePresenter;
+import org.eclipse.che.ide.ext.yaml.ide.YamlServiceClient;
+import org.eclipse.che.ide.ext.yaml.ide.YamlServiceClientImpl;
 import org.eclipse.che.ide.ext.yaml.ide.preferences.YamlExtensionManagerPresenter;
 import org.eclipse.che.ide.ext.yaml.ide.preferences.YamlExtensionManagerView;
 import org.eclipse.che.ide.ext.yaml.ide.preferences.YamlExtensionManagerViewImpl;
@@ -26,8 +28,11 @@ public class YamlGinModule extends AbstractGinModule {
     /** {@inheritDoc} */
     @Override
     protected void configure() {
+        bind(YamlServiceClient.class).to(YamlServiceClientImpl.class).in(Singleton.class);
+
         bind(YamlExtensionManagerView.class).to(YamlExtensionManagerViewImpl.class).in(Singleton.class);
         GinMultibinder<PreferencePagePresenter> prefBinder = GinMultibinder.newSetBinder(binder(), PreferencePagePresenter.class);
         prefBinder.addBinding().to(YamlExtensionManagerPresenter.class);
+
     }
 }

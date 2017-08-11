@@ -13,6 +13,7 @@ package org.eclipse.che.ide.ext.yaml.ide.preferences;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import elemental.json.Json;
 import org.eclipse.che.ide.api.dialogs.CancelCallback;
 import org.eclipse.che.ide.api.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.api.dialogs.DialogFactory;
@@ -20,6 +21,9 @@ import org.eclipse.che.ide.api.dialogs.InputCallback;
 import org.eclipse.che.ide.api.preferences.AbstractPreferencePagePresenter;
 import org.eclipse.che.ide.api.preferences.PreferencesManager;
 import org.eclipse.che.ide.ext.yaml.ide.YamlLocalizationConstant;
+import org.eclipse.che.ide.ext.yaml.ide.YamlServiceClient;
+import org.eclipse.che.ide.json.JsonHelper;
+
 import javax.validation.constraints.NotNull;
 import java.util.*;
 
@@ -38,23 +42,26 @@ public class YamlExtensionManagerPresenter extends AbstractPreferencePagePresent
     private PreferencesManager preferencesManager;
     private List<YamlPreference> yamlPreferences;
     private YamlLocalizationConstant ylc;
+    private YamlServiceClient service;
     private boolean dirty = false;
 
     @Inject
     public YamlExtensionManagerPresenter(YamlExtensionManagerView view,
                                          DialogFactory dialogFactory,
                                          PreferencesManager preferencesManager,
-                                         YamlLocalizationConstant ylc) {
+                                         YamlLocalizationConstant ylc,
+                                         YamlServiceClient service) {
         super("Yaml", "Language Server Settings");
         this.view = view;
         this.dialogFactory = dialogFactory;
         this.view.setDelegate(this);
         this.ylc = ylc;
+        this.service = service;
         this.preferencesManager = preferencesManager;
-        if(preferencesManager.getValue(preferenceName) == null){
+        if(preferencesManager.getValue(preferenceName) == null || preferencesManager.getValue(preferenceName) == ""){
             this.yamlPreferences = new ArrayList<YamlPreference>();
         }else{
-            //this.yamlPreferences = jsonToYamlPreference();
+            this.yamlPreferences = jsonToYamlPreference();
         }
 
     }
@@ -108,8 +115,9 @@ public class YamlExtensionManagerPresenter extends AbstractPreferencePagePresent
     }
 
     private void setSchemas(){
-        Map<String, String> schemaMap = new HashMap<String, String>();
-        schemaMap.put("/kubernetes.yaml", "http://central.maven.org/maven2/io/fabric8/kubernetes-model/1.1.0/kubernetes-model-1.1.0-schema.json");
+        Map<String, String[]> schemaMap = new HashMap<String, String[]>();
+        schemaMap.put("/kubernetes.yaml", new String[]{"http://central.maven.org/maven2/io/fabric8/kubernetes-model/1.1.0/kubernetes-model-1.1.0-schema.json"});
+        service.putSchemas(schemaMap);
     }
 
     /** {@inheritDoc} */
@@ -135,36 +143,36 @@ public class YamlExtensionManagerPresenter extends AbstractPreferencePagePresent
         view.setPairs(this.yamlPreferences);
     }
 
-//    private Map<String, String> yamlPreferenceToMap(List<YamlPreference> pref){
-//        Map<String, String> preferenceMap = new HashMap<String, String>();
-//
-//        ListIterator<YamlPreference> prefItr = pref.listIterator();
-//        while(prefItr.hasNext()){
-//            YamlPreference currPref = prefItr.next();
-//            preferenceMap.put(currPref.getUrl(), currPref.getGlob());
-//        }
-//
-//        return preferenceMap;
-//    }
-//
-//    private List<YamlPreference> jsonToYamlPreference(){
-//        Map<String, String> jsonPreferenceMap = new <String, String>HashMap(JsonHelper.toMap(preferencesManager.getValue(preferenceName)));
-//        ArrayList yamlPreferences = new ArrayList<YamlPreference>();
-//
-//        for(Map.Entry<String, String> entry : jsonPreferenceMap.entrySet()){
-//            String key = entry.getKey();
-//            String value = entry.getValue();
-//
-//            YamlPreference newPref = new YamlPreference(key, value);
-//            yamlPreferences.add(newPref);
-//        }
-//
-//        return yamlPreferences;
-//    }
+    private Map<String, String> yamlPreferenceToMap(List<YamlPreference> pref){
+        Map<String, String> preferenceMap = new HashMap<String, String>();
+
+        ListIterator<YamlPreference> prefItr = pref.listIterator();
+        while(prefItr.hasNext()){
+            YamlPreference currPref = prefItr.next();
+            preferenceMap.put(currPref.getUrl(), currPref.getGlob());
+        }
+
+        return preferenceMap;
+    }
+
+    private List<YamlPreference> jsonToYamlPreference(){
+        Map<String, String> jsonPreferenceMap = new <String, String>HashMap(JsonHelper.toMap(preferencesManager.getValue(preferenceName)));
+        ArrayList yamlPreferences = new ArrayList<YamlPreference>();
+
+        for(Map.Entry<String, String> entry : jsonPreferenceMap.entrySet()){
+            String key = entry.getKey();
+            String value = JsonHelper.toMap(entry.getValue()).toString();
+
+            YamlPreference newPref = new YamlPreference(key, value);
+            yamlPreferences.add(newPref);
+        }
+
+        return yamlPreferences;
+    }
 
     @Override
     public void storeChanges() {
-        //preferencesManager.setValue(this.preferenceName, JsonHelper.toJson(yamlPreferenceToMap(yamlPreferences)));
+        preferencesManager.setValue(this.preferenceName, JsonHelper.toJson(yamlPreferenceToMap(yamlPreferences)));
         dirty = false;
         delegate.onDirtyChanged();
     }

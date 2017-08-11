@@ -10,11 +10,22 @@
 #   Codenvy, S.A. - initial API and implementation
 #
 
+is_current_user_root() {
+    test "$(id -u)" = 0
+}
+
+is_current_user_sudoer() {
+    sudo -n true > /dev/null 2>&1
+}
+
+set_sudo_command() {
+    if is_current_user_sudoer && ! is_current_user_root; then SUDO="sudo -E"; else unset SUDO; fi
+}
+
+set_sudo_command
 unset PACKAGES
-unset SUDO
 command -v tar >/dev/null 2>&1 || { PACKAGES=${PACKAGES}" tar"; }
 command -v curl >/dev/null 2>&1 || { PACKAGES=${PACKAGES}" curl"; }
-test "$(id -u)" = 0 || SUDO="sudo -E"
 
 AGENT_BINARIES_URI=https://github.com/JPinkney/yaml-language-server/archive/untagged-8834a7ac157430278513.tar.gz
 CHE_DIR=$HOME/che
@@ -27,7 +38,7 @@ if [ -f /etc/centos-release ]; then
  elif [ -f /etc/redhat-release ]; then
     FILE="/etc/redhat-release"
     LINUX_TYPE=$(cat $FILE | cut -c 1-8)
- els
+ else
     FILE="/etc/os-release"
     LINUX_TYPE=$(cat $FILE | grep ^ID= | tr '[:upper:]' '[:lower:]')
     LINUX_VERSION=$(cat $FILE | grep ^VERSION_ID=)

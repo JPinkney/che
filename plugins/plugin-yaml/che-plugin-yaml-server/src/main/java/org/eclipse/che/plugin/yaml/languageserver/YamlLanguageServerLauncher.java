@@ -20,9 +20,6 @@ import org.eclipse.che.api.languageserver.registry.LanguageServerDescription;
 import org.eclipse.che.api.languageserver.registry.ServerInitializerObserver;
 import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.plugin.yaml.inject.YamlModule;
-import org.eclipse.che.plugin.yaml.shared.SchemaAssociations;
-import org.eclipse.che.plugin.yaml.shared.YamlDTO;
-import org.eclipse.che.plugin.yaml.shared.YamlSchemaAssociations;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
@@ -49,15 +46,14 @@ public class YamlLanguageServerLauncher extends LanguageServerLauncherTemplate i
 
     private static final String                    REGEX       = ".*\\.(yaml|yml)";
     private static final LanguageServerDescription DESCRIPTION = createServerDescription();
-
+    private static LanguageServer yamlLanguageServer;
     private DtoFactory dto;
 
     private final Path launchScript;
 
     @Inject
-    public YamlLanguageServerLauncher(DtoFactory dto) {
+    public YamlLanguageServerLauncher() {
         launchScript = Paths.get(System.getenv("HOME"), "che/ls-yaml/launch.sh");
-        this.dto = dto;
     }
 
     @Override
@@ -70,14 +66,12 @@ public class YamlLanguageServerLauncher extends LanguageServerLauncherTemplate i
                                                                     languageServerProcess.getInputStream(),
                                                                     languageServerProcess.getOutputStream());
         launcher.startListening();
-
-        setYamlLanguageServer(launcher.getRemoteProxy());
-
+        yamlLanguageServer = launcher.getRemoteProxy();
         return launcher.getRemoteProxy();
     }
 
-    private void setYamlLanguageServer(LanguageServer yamlServer){
-        //SchemaAssociations.setYamlLanguageServer(yamlServer);
+    protected static LanguageServer getYamlLanguageServer(){
+        return yamlLanguageServer;
     }
 
     protected Process startLanguageServerProcess(String projectPath) throws LanguageServerException {
@@ -97,7 +91,7 @@ public class YamlLanguageServerLauncher extends LanguageServerLauncherTemplate i
                                     ServerCapabilities capabilities,
                                     String projectPath) {
         Endpoint endpoint = ServiceEndpoints.toEndpoint(server);
-        org.eclipse.che.plugin.yaml.shared.YamlSchemaAssociations serviceObject = ServiceEndpoints.toServiceObject(endpoint, org.eclipse.che.plugin.yaml.shared.YamlSchemaAssociations.class);
+        YamlSchemaAssociations serviceObject = ServiceEndpoints.toServiceObject(endpoint, YamlSchemaAssociations.class);
         Map<String, String[]> associations = new HashMap<>();
         associations.put("/composer.yaml", new String[]{"http://json.schemastore.org/composer"});
         //serviceObject.yamlSchemaAssociation(associations);

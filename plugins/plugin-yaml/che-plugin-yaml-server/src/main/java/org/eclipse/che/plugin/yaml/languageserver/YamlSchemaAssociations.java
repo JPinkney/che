@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.plugin.yaml.shared;
+package org.eclipse.che.plugin.yaml.languageserver;
 
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 
@@ -19,7 +19,7 @@ import java.util.Map;
  */
 public interface YamlSchemaAssociations {
 
-    //@JsonNotification(value="json/schemaAssociations", useSegment = false)
-    //void yamlSchemaAssociation(Map<String, String[]> associations);
+    @JsonNotification(value="json/schemaAssociations", useSegment = false)
+    void yamlSchemaAssociation(Map<String, String[]> associations);
 
 }

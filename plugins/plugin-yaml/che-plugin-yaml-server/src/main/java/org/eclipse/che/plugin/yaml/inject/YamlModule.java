@@ -18,6 +18,7 @@ import org.eclipse.che.api.languageserver.launcher.LanguageServerLauncher;
 import org.eclipse.che.api.languageserver.shared.model.LanguageDescription;
 import org.eclipse.che.inject.DynaModule;
 import org.eclipse.che.plugin.yaml.languageserver.YamlLanguageServerLauncher;
+import org.eclipse.che.plugin.yaml.languageserver.YamlService;
 
 /**
  * @author Anatolii Bazko
@@ -36,5 +37,8 @@ public class YamlModule extends AbstractModule {
         description.setLanguageId(LANGUAGE_ID);
         description.setMimeType(MIME_TYPE);
         Multibinder.newSetBinder(binder(), LanguageDescription.class).addBinding().toInstance(description);
+
+        bind(YamlService.class);
+
     }
 } 
