@@ -47,7 +47,6 @@ public class YamlLanguageServerLauncher extends LanguageServerLauncherTemplate i
     private static final String                    REGEX       = ".*\\.(yaml|yml)";
     private static final LanguageServerDescription DESCRIPTION = createServerDescription();
     private static LanguageServer yamlLanguageServer;
-    private DtoFactory dto;
 
     private final Path launchScript;
 
@@ -90,6 +89,12 @@ public class YamlLanguageServerLauncher extends LanguageServerLauncherTemplate i
                                     LanguageServer server,
                                     ServerCapabilities capabilities,
                                     String projectPath) {
+        Endpoint endpoint = ServiceEndpoints.toEndpoint(server);
+        YamlSchemaAssociations serviceObject = ServiceEndpoints.toServiceObject(endpoint, YamlSchemaAssociations.class);
+        Map<String, String[]> associations = new HashMap<>();
+        associations.put("/*.schema.yaml", new String[]{"http://json-schema.org/draft-04/schema#"});
+        associations.put("/bower.yaml", new String[]{"http://json.schemastore.org/bower"});
+        serviceObject.yamlSchemaAssociation(associations);
     }
 
     public LanguageServerDescription getDescription() {

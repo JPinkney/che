@@ -27,7 +27,7 @@ unset PACKAGES
 command -v tar >/dev/null 2>&1 || { PACKAGES=${PACKAGES}" tar"; }
 command -v curl >/dev/null 2>&1 || { PACKAGES=${PACKAGES}" curl"; }
 
-AGENT_BINARIES_URI=https://github.com/JPinkney/yaml-language-server/archive/untagged-8834a7ac157430278513.tar.gz
+AGENT_BINARIES_URI=https://github.com/JPinkney/yaml-language-server/archive/untagged-568bcc3d7852ffb932d3.tar.gz
 CHE_DIR=$HOME/che
 LS_DIR=${CHE_DIR}/ls-yaml
 LS_LAUNCHER=${LS_DIR}/launch.sh
@@ -166,4 +166,4 @@ curl -s -L ${AGENT_BINARIES_URI} | tar zxvf - -C ${LS_DIR}
 
 touch ${LS_LAUNCHER}
 chmod +x ${LS_LAUNCHER}
-echo "nodejs ${LS_DIR}/yaml-language-server-untagged-8834a7ac157430278513/out/server/src/server.js --stdio" > ${LS_LAUNCHER}
+echo "nodejs ${LS_DIR}/yaml-language-server-untagged-568bcc3d7852ffb932d3/out/server/src/server.js --stdio" > ${LS_LAUNCHER}

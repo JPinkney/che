@@ -10,9 +10,12 @@ import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
 import java.util.ArrayList;
 import java.util.Map;
 
+import static org.eclipse.che.ide.MimeType.APPLICATION_JSON;
+import static org.eclipse.che.ide.rest.HTTPHeader.CONTENTTYPE;
+
 @Singleton
 public class YamlServiceClientImpl implements YamlServiceClient {
-    private static final String SCHEMAS = "/yaml/schemas";
+    private static final String SCHEMAS = "/api/yaml/schemas";
 
     private final LoaderFactory loaderFactory;
     private final AsyncRequestFactory asyncRequestFactory;
@@ -31,6 +34,6 @@ public class YamlServiceClientImpl implements YamlServiceClient {
 
         //Do to json
 
-        return asyncRequestFactory.createPostRequest(SCHEMAS, null).loader(loader).send();
+        return asyncRequestFactory.createPostRequest(SCHEMAS, null).loader(loader).header(CONTENTTYPE, APPLICATION_JSON).send();
     }
 }
