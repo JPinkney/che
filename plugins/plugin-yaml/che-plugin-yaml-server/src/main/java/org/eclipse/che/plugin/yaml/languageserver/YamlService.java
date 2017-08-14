@@ -8,6 +8,7 @@ import org.eclipse.lsp4j.services.LanguageServer;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,12 +18,16 @@ public class YamlService {
     @POST
     @Path("schemas")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void putSchemas() throws ApiException {
+    public void putSchemas(Map<String, ArrayList<String>> schemas) throws ApiException {
         LanguageServer yamlLS = YamlLanguageServerLauncher.getYamlLanguageServer();
         Endpoint endpoint = ServiceEndpoints.toEndpoint(yamlLS);
         YamlSchemaAssociations serviceObject = ServiceEndpoints.toServiceObject(endpoint, YamlSchemaAssociations.class);
         Map<String, String[]> associations = new HashMap<>();
-        associations.put("/test.yaml", new String[]{"http://json.schemastore.org/composer"});
+
+        for(Map.Entry<String, ArrayList<String>> schema : schemas.entrySet()){
+            associations.put(schema.getKey(), schema.getValue().toArray(new String[schema.getValue().size()]));
+        }
+
         serviceObject.yamlSchemaAssociation(associations);
     }
 

@@ -7,6 +7,7 @@ import org.eclipse.che.ide.rest.AsyncRequestFactory;
 import org.eclipse.che.ide.rest.AsyncRequestLoader;
 import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 @Singleton
@@ -26,7 +27,7 @@ public class YamlServiceClientImpl implements YamlServiceClient {
     }
 
     @Override
-    public Promise<Void> putSchemas(Map<String, String[]> schemas) {
+    public Promise<Void> putSchemas(Map<String, ArrayList<String>> schemas) {
 
         //Do to json
 

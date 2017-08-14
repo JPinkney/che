@@ -12,6 +12,8 @@ package org.eclipse.che.plugin.yaml.languageserver;
 
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**

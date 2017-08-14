@@ -86,15 +86,10 @@ public class YamlLanguageServerLauncher extends LanguageServerLauncherTemplate i
     }
 
     @Override
-    public void onServerInitialized(LanguageServerLauncher launcher, 
+    public void onServerInitialized(LanguageServerLauncher launcher,
                                     LanguageServer server,
                                     ServerCapabilities capabilities,
                                     String projectPath) {
-        Endpoint endpoint = ServiceEndpoints.toEndpoint(server);
-        YamlSchemaAssociations serviceObject = ServiceEndpoints.toServiceObject(endpoint, YamlSchemaAssociations.class);
-        Map<String, String[]> associations = new HashMap<>();
-        associations.put("/composer.yaml", new String[]{"http://json.schemastore.org/composer"});
-        //serviceObject.yamlSchemaAssociation(associations);
     }
 
     public LanguageServerDescription getDescription() {

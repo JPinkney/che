@@ -10,10 +10,12 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.yaml.ide.preferences;
 
+import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import elemental.json.Json;
+import elemental.json.JsonObject;
 import org.eclipse.che.ide.api.dialogs.CancelCallback;
 import org.eclipse.che.ide.api.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.api.dialogs.DialogFactory;
@@ -63,7 +65,6 @@ public class YamlExtensionManagerPresenter extends AbstractPreferencePagePresent
         }else{
             this.yamlPreferences = jsonToYamlPreference();
         }
-
     }
 
     /** {@inheritDoc} */
@@ -115,8 +116,20 @@ public class YamlExtensionManagerPresenter extends AbstractPreferencePagePresent
     }
 
     private void setSchemas(){
-        Map<String, String[]> schemaMap = new HashMap<String, String[]>();
-        schemaMap.put("/kubernetes.yaml", new String[]{"http://central.maven.org/maven2/io/fabric8/kubernetes-model/1.1.0/kubernetes-model-1.1.0-schema.json"});
+        Map<String, ArrayList<String>> schemaMap = new HashMap<String, ArrayList<String>>();
+
+        for(YamlPreference yamlPref : this.yamlPreferences){
+            if(schemaMap.containsKey(yamlPref.getGlob())){
+                ArrayList<String> urlSchemas = new ArrayList<String>(schemaMap.get(yamlPref.getGlob()));
+                urlSchemas.add(yamlPref.getUrl());
+                schemaMap.put(yamlPref.getGlob(), urlSchemas);
+            }else{
+                ArrayList<String> urlSchemas = new ArrayList<String>();
+                urlSchemas.add(yamlPref.getUrl());
+                schemaMap.put(yamlPref.getGlob(), urlSchemas);
+            }
+        }
+
         service.putSchemas(schemaMap);
     }
 
@@ -143,28 +156,38 @@ public class YamlExtensionManagerPresenter extends AbstractPreferencePagePresent
         view.setPairs(this.yamlPreferences);
     }
 
-    private Map<String, String> yamlPreferenceToMap(List<YamlPreference> pref){
-        Map<String, String> preferenceMap = new HashMap<String, String>();
+    private Map<String, List<String>> yamlPreferenceToMap(List<YamlPreference> pref){
+        Map<String, List<String>> preferenceMap = new HashMap<String, List<String>>();
 
-        ListIterator<YamlPreference> prefItr = pref.listIterator();
-        while(prefItr.hasNext()){
-            YamlPreference currPref = prefItr.next();
-            preferenceMap.put(currPref.getUrl(), currPref.getGlob());
+        for(YamlPreference prefItr : pref){
+
+            if(preferenceMap.containsKey(prefItr.getGlob())){
+                ArrayList<String> prefList = new ArrayList<String>(preferenceMap.get(prefItr.getGlob()));
+                prefList.add(prefItr.getUrl());
+                preferenceMap.put(prefItr.getGlob(), prefList);
+            }else{
+                ArrayList<String> prefList = new ArrayList<String>();
+                prefList.add(prefItr.getUrl());
+                preferenceMap.put(prefItr.getGlob(), prefList);
+            }
         }
 
         return preferenceMap;
     }
 
     private List<YamlPreference> jsonToYamlPreference(){
-        Map<String, String> jsonPreferenceMap = new <String, String>HashMap(JsonHelper.toMap(preferencesManager.getValue(preferenceName)));
+
+        System.out.println(preferencesManager.getValue(preferenceName));
+        String jsonStr = preferencesManager.getValue(preferenceName);
+
         ArrayList yamlPreferences = new ArrayList<YamlPreference>();
-
-        for(Map.Entry<String, String> entry : jsonPreferenceMap.entrySet()){
-            String key = entry.getKey();
-            String value = JsonHelper.toMap(entry.getValue()).toString();
-
-            YamlPreference newPref = new YamlPreference(key, value);
-            yamlPreferences.add(newPref);
+        JsonObject parsedJson = Json.parse(jsonStr);
+        for(String glob : parsedJson.keys()){
+            for(int ind = 0; ind < parsedJson.getArray(glob).length(); ind++){
+                String value = parsedJson.getArray(glob).getString(ind);
+                YamlPreference newYamlPref = new YamlPreference(glob, value);
+                yamlPreferences.add(newYamlPref);
+            }
         }
 
         return yamlPreferences;
@@ -172,7 +195,13 @@ public class YamlExtensionManagerPresenter extends AbstractPreferencePagePresent
 
     @Override
     public void storeChanges() {
-        preferencesManager.setValue(this.preferenceName, JsonHelper.toJson(yamlPreferenceToMap(yamlPreferences)));
+
+        Map<String, String> preferenceList = new HashMap<String, String>();
+        for(Map.Entry<String, List<String>> pref: yamlPreferenceToMap(yamlPreferences).entrySet()){
+            preferenceList.put(pref.getKey(), pref.getValue().toString());
+        }
+
+        preferencesManager.setValue(this.preferenceName, JsonHelper.toJson(preferenceList));
         dirty = false;
         delegate.onDirtyChanged();
     }
