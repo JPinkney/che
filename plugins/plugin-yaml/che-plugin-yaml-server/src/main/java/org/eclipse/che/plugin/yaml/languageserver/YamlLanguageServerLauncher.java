@@ -18,7 +18,6 @@ import org.eclipse.che.api.languageserver.launcher.LanguageServerLauncherTemplat
 import org.eclipse.che.api.languageserver.registry.DocumentFilter;
 import org.eclipse.che.api.languageserver.registry.LanguageServerDescription;
 import org.eclipse.che.api.languageserver.registry.ServerInitializerObserver;
-import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.plugin.yaml.inject.YamlModule;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
@@ -91,7 +90,7 @@ public class YamlLanguageServerLauncher extends LanguageServerLauncherTemplate i
                                     String projectPath) {
         Endpoint endpoint = ServiceEndpoints.toEndpoint(server);
         YamlSchemaAssociations serviceObject = ServiceEndpoints.toServiceObject(endpoint, YamlSchemaAssociations.class);
-        Map<String, String[]> associations = new HashMap<>();
+        Map<String, String[]> associations = new HashMap<String, String[]>();
         associations.put("/*.schema.yaml", new String[]{"http://json-schema.org/draft-04/schema#"});
         associations.put("/bower.yaml", new String[]{"http://json.schemastore.org/bower"});
         serviceObject.yamlSchemaAssociation(associations);

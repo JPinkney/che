@@ -7,5 +7,5 @@ import java.util.List;
 import java.util.Map;
 
 public interface YamlServiceClient {
-    Promise<Void> putSchemas(Map<String, ArrayList<String>> schemas);
+    Promise<Void> putSchemas();
 }

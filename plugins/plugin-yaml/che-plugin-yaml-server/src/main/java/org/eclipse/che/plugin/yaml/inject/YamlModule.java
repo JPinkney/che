@@ -38,7 +38,6 @@ public class YamlModule extends AbstractModule {
         description.setMimeType(MIME_TYPE);
         Multibinder.newSetBinder(binder(), LanguageDescription.class).addBinding().toInstance(description);
 
-        //bind(YamlService.class);
-
+        bind(YamlService.class);
     }
-} 
+}

@@ -16,10 +16,15 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import elemental.json.Json;
 import elemental.json.JsonObject;
+import org.eclipse.che.api.promises.client.Operation;
+import org.eclipse.che.api.promises.client.OperationException;
+import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.ide.api.dialogs.CancelCallback;
 import org.eclipse.che.ide.api.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.api.dialogs.DialogFactory;
 import org.eclipse.che.ide.api.dialogs.InputCallback;
+import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.api.preferences.AbstractPreferencePagePresenter;
 import org.eclipse.che.ide.api.preferences.PreferencesManager;
 import org.eclipse.che.ide.ext.yaml.ide.YamlLocalizationConstant;
@@ -45,6 +50,7 @@ public class YamlExtensionManagerPresenter extends AbstractPreferencePagePresent
     private List<YamlPreference> yamlPreferences;
     private YamlLocalizationConstant ylc;
     private YamlServiceClient service;
+    private NotificationManager notificationManager;
     private boolean dirty = false;
 
     @Inject
@@ -52,11 +58,13 @@ public class YamlExtensionManagerPresenter extends AbstractPreferencePagePresent
                                          DialogFactory dialogFactory,
                                          PreferencesManager preferencesManager,
                                          YamlLocalizationConstant ylc,
-                                         YamlServiceClient service) {
+                                         YamlServiceClient service,
+                                         NotificationManager notificationManager) {
         super("Yaml", "Language Server Settings");
         this.view = view;
         this.dialogFactory = dialogFactory;
         this.view.setDelegate(this);
+        this.notificationManager = notificationManager;
         this.ylc = ylc;
         this.service = service;
         this.preferencesManager = preferencesManager;
@@ -130,7 +138,7 @@ public class YamlExtensionManagerPresenter extends AbstractPreferencePagePresent
             }
         }
 
-        service.putSchemas(schemaMap);
+        service.putSchemas();
     }
 
     /** {@inheritDoc} */
@@ -184,7 +192,7 @@ public class YamlExtensionManagerPresenter extends AbstractPreferencePagePresent
         JsonObject parsedJson = Json.parse(jsonStr);
         for(String glob : parsedJson.keys()){
             for(int ind = 0; ind < parsedJson.getArray(glob).length(); ind++){
-                String value = parsedJson.getArray(glob).getString(ind);
+                String value = parsedJson.getArray(glob).getArray(ind).getString(ind);
                 YamlPreference newYamlPref = new YamlPreference(glob, value);
                 yamlPreferences.add(newYamlPref);
             }
