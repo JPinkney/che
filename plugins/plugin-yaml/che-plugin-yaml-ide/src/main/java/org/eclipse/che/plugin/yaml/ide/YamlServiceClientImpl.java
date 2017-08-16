@@ -10,6 +10,8 @@ import org.eclipse.che.ide.rest.AsyncRequestLoader;
 import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
 import org.eclipse.che.plugin.yaml.shared.YamlDTO;
 
+import java.util.Map;
+
 import static org.eclipse.che.ide.MimeType.APPLICATION_JSON;
 import static org.eclipse.che.ide.rest.HTTPHeader.CONTENTTYPE;
 
@@ -35,10 +37,10 @@ public class YamlServiceClientImpl implements YamlServiceClient {
     }
 
     @Override
-    public Promise<Void> putSchemas() {
-        YamlDTO schemaAddition = dtoFactory.createDto(YamlDTO.class);
-        String schemasLocation = getWsAgentBaseUrl() + "/api/yaml/schemas";
-        return asyncRequestFactory.createPostRequest(schemasLocation, null).loader(loader).header(CONTENTTYPE, APPLICATION_JSON).send();
+    public Promise<Void> putSchemas(Map<String, String> schemas) {
+        YamlDTO schemaAddition = dtoFactory.createDto(YamlDTO.class).withSchemas(schemas);
+        String schemasLocation = getWsAgentBaseUrl() + "/yaml/schemas";
+        return asyncRequestFactory.createPostRequest(schemasLocation, schemaAddition).loader(loader).send();
     }
 
     private String getWsAgentBaseUrl() {

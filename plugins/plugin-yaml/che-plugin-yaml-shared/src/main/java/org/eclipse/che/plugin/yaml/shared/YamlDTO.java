@@ -10,7 +10,7 @@ public interface YamlDTO {
     /**
      * Returns name service that will use yaml DTO.
      */
-    String getSchemas();
+    Map<String, String> getSchemas();
 
     void setSchemas(Map<String, String> schemas);
 

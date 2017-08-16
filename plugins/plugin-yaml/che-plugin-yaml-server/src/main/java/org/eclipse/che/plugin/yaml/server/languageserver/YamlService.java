@@ -1,18 +1,28 @@
 package org.eclipse.che.plugin.yaml.server.languageserver;
 
+import com.google.inject.Inject;
 import org.eclipse.che.api.core.ApiException;
+import org.eclipse.che.dto.server.DtoFactory;
+import org.eclipse.che.plugin.yaml.shared.YamlDTO;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
 import org.eclipse.lsp4j.services.LanguageServer;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.util.Map;
 
 @Path("yaml")
 public class YamlService {
 
     @POST
     @Path("schemas")
-    public void putSchemas() throws ApiException {
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void putSchemas(Map<String, String> schemas) throws ApiException {
+        System.out.println(schemas);
+        YamlDTO dto = DtoFactory.getInstance().createDto(YamlDTO.class);
+        System.out.println(dto);
+        System.out.println(dto.getSchemas());
         //LanguageServer yamlLS = YamlLanguageServerLauncher.getYamlLanguageServer();
         //Endpoint endpoint = ServiceEndpoints.toEndpoint(yamlLS);
         //YamlSchemaAssociations serviceObject = ServiceEndpoints.toServiceObject(endpoint, YamlSchemaAssociations.class);
@@ -40,18 +50,9 @@ public class YamlService {
     }
 
     @GET
-    @Path("test2")
-    public LanguageServer getSchemas2(){
-        LanguageServer yamlLS = YamlLanguageServerLauncher.getYamlLanguageServer();
-        Endpoint endpoint = ServiceEndpoints.toEndpoint(yamlLS);
-        YamlSchemaAssociations serviceObject = ServiceEndpoints.toServiceObject(endpoint, YamlSchemaAssociations.class);
-        return yamlLS;
-    }
-
-    @GET
     @Path("test3")
     public String getSchemas3   (){
-        return "Updated";
+        return "Updated 2";
     }
 
 

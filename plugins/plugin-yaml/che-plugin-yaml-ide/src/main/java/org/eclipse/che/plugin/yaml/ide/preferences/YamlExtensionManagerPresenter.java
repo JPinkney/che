@@ -133,7 +133,10 @@ public class YamlExtensionManagerPresenter extends AbstractPreferencePagePresent
             }
         }
 
-        service.putSchemas();
+        Map<String, String> test = new HashMap<String, String>();
+        test.put("test", "test");
+
+        service.putSchemas(test);
     }
 
     /** {@inheritDoc} */
