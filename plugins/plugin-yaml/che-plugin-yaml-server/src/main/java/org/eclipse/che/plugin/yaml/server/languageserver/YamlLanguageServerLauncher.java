@@ -64,12 +64,8 @@ public class YamlLanguageServerLauncher extends LanguageServerLauncherTemplate i
                                                                     languageServerProcess.getInputStream(),
                                                                     languageServerProcess.getOutputStream());
         launcher.startListening();
-        yamlLanguageServer = launcher.getRemoteProxy();
+        setYamlLanguageServer(launcher.getRemoteProxy());
         return launcher.getRemoteProxy();
-    }
-
-    protected static LanguageServer getYamlLanguageServer(){
-        return yamlLanguageServer;
     }
 
     protected Process startLanguageServerProcess(String projectPath) throws LanguageServerException {
@@ -83,17 +79,25 @@ public class YamlLanguageServerLauncher extends LanguageServerLauncherTemplate i
         }
     }
 
+    protected static LanguageServer getYamlLanguageServer(){
+        return yamlLanguageServer;
+    }
+
+    protected static void setYamlLanguageServer(LanguageServer yamlLanguageServer){
+        YamlLanguageServerLauncher.yamlLanguageServer = yamlLanguageServer;
+    }
+
     @Override
     public void onServerInitialized(LanguageServerLauncher launcher,
                                     LanguageServer server,
                                     ServerCapabilities capabilities,
                                     String projectPath) {
-        Endpoint endpoint = ServiceEndpoints.toEndpoint(server);
-        YamlSchemaAssociations serviceObject = ServiceEndpoints.toServiceObject(endpoint, YamlSchemaAssociations.class);
-        Map<String, String[]> associations = new HashMap<String, String[]>();
-        associations.put("/*.schema.yaml", new String[]{"http://json-schema.org/draft-04/schema#"});
-        associations.put("/bower.yaml", new String[]{"http://json.schemastore.org/bower"});
-        serviceObject.yamlSchemaAssociation(associations);
+//        Endpoint endpoint = ServiceEndpoints.toEndpoint(server);
+//        YamlSchemaAssociations serviceObject = ServiceEndpoints.toServiceObject(endpoint, YamlSchemaAssociations.class);
+//        Map<String, String[]> associations = new HashMap<String, String[]>();
+//        associations.put("/*.schema.yaml", new String[]{"http://json-schema.org/draft-04/schema#"});
+//        associations.put("/bower.yaml", new String[]{"http://json.schemastore.org/bower"});
+//        serviceObject.yamlSchemaAssociation(associations);
     }
 
     public LanguageServerDescription getDescription() {
