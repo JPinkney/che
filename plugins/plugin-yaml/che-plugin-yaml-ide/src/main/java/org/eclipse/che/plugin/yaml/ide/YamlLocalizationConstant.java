@@ -20,4 +20,7 @@ public interface YamlLocalizationConstant extends Messages {
     @Key("deleteUrl")
     String deleteUrl();
 
+    @Key("headerUiMessage")
+    String headerUiMessage();
+
 }

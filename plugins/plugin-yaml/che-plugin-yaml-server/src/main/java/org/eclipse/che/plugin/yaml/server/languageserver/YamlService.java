@@ -1,9 +1,7 @@
 package org.eclipse.che.plugin.yaml.server.languageserver;
 
 import com.google.gson.Gson;
-import com.google.inject.Inject;
 import org.eclipse.che.api.core.ApiException;
-import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.plugin.yaml.shared.YamlDTO;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
@@ -11,7 +9,6 @@ import org.eclipse.lsp4j.services.LanguageServer;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 

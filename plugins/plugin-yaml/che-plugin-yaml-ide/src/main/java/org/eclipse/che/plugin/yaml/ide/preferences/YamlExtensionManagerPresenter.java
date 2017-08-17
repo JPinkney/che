@@ -182,11 +182,16 @@ public class YamlExtensionManagerPresenter extends AbstractPreferencePagePresent
         ArrayList yamlPreferences = new ArrayList<YamlPreference>();
         JsonObject parsedJson = Json.parse(jsonStr);
         for(String glob : parsedJson.keys()){
-            JsonObject jsonGlob = Json.parse(parsedJson.get(glob));
-            for(String url : jsonGlob.keys()){
-                YamlPreference newYamlPref = new YamlPreference(jsonGlob.get(url), glob);
-                yamlPreferences.add(newYamlPref);
+            try{
+                JsonObject jsonGlob = Json.parse(parsedJson.get(glob));
+                for(String url : jsonGlob.keys()){
+                    YamlPreference newYamlPref = new YamlPreference(jsonGlob.get(url), glob);
+                    yamlPreferences.add(newYamlPref);
+                }
+            }catch(Exception e){
+
             }
+
         }
 
         return yamlPreferences;

@@ -61,6 +61,7 @@
             </g:FlowPanel>
         </g:south>
         <g:center>
+            <g:Label ui:field="headerUiMsg" text="{locale.headerUiMessage}"/>
             <g:ScrollPanel addStyleNames="{style.emptyBorder}">
                 <g:SimplePanel>
                     <p1:CellTable width="100%" ui:field="keys" focus="false"

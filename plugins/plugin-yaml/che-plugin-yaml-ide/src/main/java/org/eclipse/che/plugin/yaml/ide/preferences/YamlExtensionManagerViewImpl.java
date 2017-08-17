@@ -23,10 +23,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.UIObject;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -50,6 +47,9 @@ public class YamlExtensionManagerViewImpl extends Composite implements YamlExten
     Button addUrl;
     @UiField(provided = true)
     CellTable<YamlPreference> keys;
+    @UiField
+    Label headerUiMsg;
+
     private ActionDelegate delegate;
 
     @Inject
