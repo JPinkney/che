@@ -68,7 +68,7 @@ public class YamlExtensionManagerPresenter extends AbstractPreferencePagePresent
         this.ylc = ylc;
         this.service = service;
         this.preferencesManager = preferencesManager;
-        if(preferencesManager.getValue(preferenceName) == null || preferencesManager.getValue(preferenceName) == ""){
+        if(preferencesManager.getValue(preferenceName) == null || "".equals(preferencesManager.getValue(preferenceName))){
             this.yamlPreferences = new ArrayList<YamlPreference>();
         }else{
             this.yamlPreferences = jsonToYamlPreference();
@@ -76,6 +76,7 @@ public class YamlExtensionManagerPresenter extends AbstractPreferencePagePresent
     }
 
     /** {@inheritDoc} */
+    @Override
     public void onDeleteClicked(@NotNull final YamlPreference pairKey) {
         dialogFactory.createConfirmDialog(ylc.deleteUrl(), "Delete the url",
                 new ConfirmCallback() {
@@ -106,6 +107,7 @@ public class YamlExtensionManagerPresenter extends AbstractPreferencePagePresent
     }
 
     /** {@inheritDoc} */
+    @Override
     public void onAddUrlClicked() {
         dialogFactory.createInputDialog(ylc.addUrlText(),
                 "Url",
@@ -184,13 +186,11 @@ public class YamlExtensionManagerPresenter extends AbstractPreferencePagePresent
         ArrayList yamlPreferences = new ArrayList<YamlPreference>();
         JsonObject parsedJson = Json.parse(jsonStr);
         for(String glob : parsedJson.keys()){
-            System.out.println(glob);
-//            JsonObject jsonGlob = Json.parse(parsedJson.get(glob));
-//            for(String url : jsonGlob.keys()){
-//                YamlPreference newYamlPref = new YamlPreference(url, glob);
-//                yamlPreferences.add(newYamlPref);
-//            }
-            //yamlPreferences.add(new YamlPreference("test", glob));
+            JsonObject jsonGlob = Json.parse(parsedJson.get(glob));
+            for(String url : jsonGlob.keys()){
+                YamlPreference newYamlPref = new YamlPreference(jsonGlob.get(url), glob);
+                yamlPreferences.add(newYamlPref);
+            }
         }
 
         return yamlPreferences;
