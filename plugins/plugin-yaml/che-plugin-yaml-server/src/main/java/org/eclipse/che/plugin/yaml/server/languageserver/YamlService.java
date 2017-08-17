@@ -34,11 +34,6 @@ public class YamlService {
             associations.put(schema.getKey(), new Gson().fromJson(schema.getValue(), String[].class));
         }
 
-        associations.put("/bower.yaml", new String[]{"http://json.schemastore.org/bower.json"});
-        associations.put("/composer.yaml", new String[]{"https://getcomposer.org/schema.json"});
-        associations.put("/news.yaml", new String[]{"http://json.schemastore.org/ninjs.json"});
-        associations.put("/config.yaml", new String[]{"http://json.schemastore.org/config"});
-
         serviceObject.yamlSchemaAssociation(associations);
     }
 
