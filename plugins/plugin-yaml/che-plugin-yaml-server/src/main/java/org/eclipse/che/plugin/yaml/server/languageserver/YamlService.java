@@ -15,6 +15,7 @@ import java.util.Map;
 @Path("yaml")
 public class YamlService {
 
+    
     @POST
     @Path("schemas")
     @Consumes(MediaType.APPLICATION_JSON)
