@@ -11,8 +11,12 @@
 package org.eclipse.che.plugin.languageserver.ide.hover;
 
 import com.google.common.base.Joiner;
+import com.google.gwt.regexp.shared.MatchResult;
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import elemental.dom.Element;
+import elemental.html.Window;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.che.api.promises.client.Promise;
@@ -25,12 +29,12 @@ import org.eclipse.che.ide.editor.orion.client.OrionHoverHandler;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionHoverContextOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionHoverOverlay;
 import org.eclipse.che.ide.util.StringUtils;
+import org.eclipse.che.ide.util.dom.Elements;
 import org.eclipse.che.plugin.languageserver.ide.editor.LanguageServerEditorConfiguration;
 import org.eclipse.che.plugin.languageserver.ide.service.TextDocumentServiceClient;
 import org.eclipse.che.plugin.languageserver.ide.util.DtoBuildHelper;
-import org.eclipse.lsp4j.Hover;
-import org.eclipse.lsp4j.MarkedString;
-import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.eclipse.che.plugin.languageserver.ide.util.OpenFileInEditorHelper;
+import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 /**
@@ -44,13 +48,18 @@ public class HoverProvider implements OrionHoverHandler {
   private final EditorAgent editorAgent;
   private final TextDocumentServiceClient client;
   private final DtoBuildHelper helper;
+  private final OpenFileInEditorHelper openFileInEditorHelper;
 
   @Inject
   public HoverProvider(
-      EditorAgent editorAgent, TextDocumentServiceClient client, DtoBuildHelper helper) {
+      EditorAgent editorAgent,
+      TextDocumentServiceClient client,
+      DtoBuildHelper helper,
+      OpenFileInEditorHelper openFileInEditorHelper) {
     this.editorAgent = editorAgent;
     this.client = client;
     this.helper = helper;
+    this.openFileInEditorHelper = openFileInEditorHelper;
   }
 
   @Override
@@ -87,9 +96,28 @@ public class HoverProvider implements OrionHoverHandler {
                 return null;
               }
               hover.setContent(content);
-
               return hover;
             });
+
+    final Window window = Elements.getWindow();
+    window.addEventListener(
+        "mousedown",
+        evt -> {
+          Element anchorEle = (Element) evt.getTarget();
+
+          // Register the onClick and open only if the element is in a tooltip.
+          if (anchorEle.getOffsetParent().getClassList().contains("textViewTooltipOnHover")) {
+            String hrefContent = anchorEle.getAttribute("href");
+            Location uriLocation = getPositionFromURI(hrefContent);
+            anchorEle.setOnclick(
+                anchorEleClick -> {
+                  anchorEleClick.preventDefault();
+                  anchorEleClick.stopPropagation();
+                  editor.getEditorWidget().hideTooltip();
+                });
+            this.openFileInEditorHelper.openLocation(uriLocation);
+          }
+        });
     return (JsPromise<OrionHoverOverlay>) then;
   }
 
@@ -104,5 +132,35 @@ public class HoverProvider implements OrionHoverHandler {
       }
     }
     return Joiner.on("\n\n").join(contents);
+  }
+
+  public Location getPositionFromURI(String uri) {
+    String pattern = "\\d+$";
+    RegExp p = RegExp.compile(pattern);
+    MatchResult m = p.exec(uri);
+
+    Location uriLoc = new Location();
+    uriLoc.setUri(uri);
+
+    Position uriPos = new Position();
+
+    // We have line information from the URI
+    if (m != null && m.getGroupCount() > 0) {
+      String lastMatch = m.getGroup(m.getGroupCount() - 1);
+      Integer lineNumber = Integer.parseInt(lastMatch);
+
+      // Case when line number is 0 for whatever reason
+      if (lineNumber > 0) {
+        uriPos.setLine(lineNumber - 1);
+      } else {
+        uriPos.setLine(lineNumber);
+      }
+    } else {
+      uriPos.setLine(0);
+    }
+
+    uriLoc.setRange(new Range(uriPos, uriPos));
+
+    return uriLoc;
   }
 }
