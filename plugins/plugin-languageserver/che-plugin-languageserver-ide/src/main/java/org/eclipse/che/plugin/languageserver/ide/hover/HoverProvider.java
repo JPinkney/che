@@ -115,7 +115,9 @@ public class HoverProvider implements OrionHoverHandler {
                   anchorEleClick.stopPropagation();
                   editor.getEditorWidget().hideTooltip();
                 });
-            this.openFileInEditorHelper.openLocation(uriLocation);
+            if(hrefContent.startsWith("file:/") || hrefContent.startsWith("jdt:/")){
+                this.openFileInEditorHelper.openLocation(uriLocation);
+            }
           }
         });
     return (JsPromise<OrionHoverOverlay>) then;
