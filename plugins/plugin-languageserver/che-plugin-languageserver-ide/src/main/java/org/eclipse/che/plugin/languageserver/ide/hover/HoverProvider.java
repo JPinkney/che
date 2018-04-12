@@ -16,6 +16,7 @@ import com.google.gwt.regexp.shared.RegExp;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import elemental.dom.Element;
+import elemental.events.Event;
 import elemental.html.Window;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,7 @@ import org.eclipse.che.ide.editor.orion.client.OrionHoverHandler;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionHoverContextOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionHoverOverlay;
 import org.eclipse.che.ide.util.StringUtils;
+import org.eclipse.che.ide.util.browser.BrowserUtils;
 import org.eclipse.che.ide.util.dom.Elements;
 import org.eclipse.che.plugin.languageserver.ide.editor.LanguageServerEditorConfiguration;
 import org.eclipse.che.plugin.languageserver.ide.service.TextDocumentServiceClient;
@@ -49,17 +51,20 @@ public class HoverProvider implements OrionHoverHandler {
   private final TextDocumentServiceClient client;
   private final DtoBuildHelper helper;
   private final OpenFileInEditorHelper openFileInEditorHelper;
+  private final DtoBuildHelper dtoBuildHelper;
 
   @Inject
   public HoverProvider(
       EditorAgent editorAgent,
       TextDocumentServiceClient client,
       DtoBuildHelper helper,
-      OpenFileInEditorHelper openFileInEditorHelper) {
+      OpenFileInEditorHelper openFileInEditorHelper,
+      DtoBuildHelper dtoBuildHelper) {
     this.editorAgent = editorAgent;
     this.client = client;
     this.helper = helper;
     this.openFileInEditorHelper = openFileInEditorHelper;
+    this.dtoBuildHelper = dtoBuildHelper;
   }
 
   @Override
@@ -96,12 +101,13 @@ public class HoverProvider implements OrionHoverHandler {
                 return null;
               }
               hover.setContent(content);
+
               return hover;
             });
 
     final Window window = Elements.getWindow();
     window.addEventListener(
-        "mousedown",
+        Event.MOUSEDOWN,
         evt -> {
           Element anchorEle = (Element) evt.getTarget();
 
@@ -113,11 +119,13 @@ public class HoverProvider implements OrionHoverHandler {
                 anchorEleClick -> {
                   anchorEleClick.preventDefault();
                   anchorEleClick.stopPropagation();
-                  editor.getEditorWidget().hideTooltip();
+                  if (hrefContent.startsWith("file:/") || hrefContent.startsWith("jdt:/")) {
+                    openFileInEditorHelper.openLocation(uriLocation);
+                  } else {
+                    BrowserUtils.openInNewTab(hrefContent);
+                  }
+                  ((TextEditor) activeEditor).getEditorWidget().hideTooltip();
                 });
-            if(hrefContent.startsWith("file:/") || hrefContent.startsWith("jdt:/")){
-                this.openFileInEditorHelper.openLocation(uriLocation);
-            }
           }
         });
     return (JsPromise<OrionHoverOverlay>) then;
@@ -136,13 +144,28 @@ public class HoverProvider implements OrionHoverHandler {
     return Joiner.on("\n\n").join(contents);
   }
 
+  public String createWorkableURI(String uri) {
+    String fixedURI = uri;
+    if (uri.indexOf("#") != -1) {
+      fixedURI = fixedURI.substring(0, uri.lastIndexOf("#"));
+    }
+
+    // Because of the markdown2html library in jdt.ls file:///projects gets stripped to
+    // file:/projects unfortunately
+    if (uri.startsWith("file:/projects")) {
+      fixedURI = fixedURI.replace("file:/projects", "");
+    }
+
+    return fixedURI;
+  }
+
   public Location getPositionFromURI(String uri) {
     String pattern = "\\d+$";
     RegExp p = RegExp.compile(pattern);
     MatchResult m = p.exec(uri);
 
     Location uriLoc = new Location();
-    uriLoc.setUri(uri);
+    uriLoc.setUri(createWorkableURI(uri));
 
     Position uriPos = new Position();
 

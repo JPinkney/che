@@ -652,7 +652,7 @@ public class OrionEditorWidget extends Composite
   }
 
   public void showTooltip() {
-    this.editorViewOverlay.showTooltip();
+    editorViewOverlay.showTooltip();
   }
 
   @Override

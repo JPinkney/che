@@ -137,41 +137,6 @@ public class Menu {
    *
    * @param idTopMenuCommand
    * @param idCommandName
-   * @param idSubCommandName
-   */
-  public void runCommand(String idTopMenuCommand, String idCommandName, String idSubCommandName) {
-    loader.waitOnClosed();
-    clickOnCommand(idTopMenuCommand);
-    try {
-      redrawMenuItemsWait.until(visibilityOfElementLocated(By.id(idCommandName)));
-    } catch (TimeoutException e) {
-      LOG.error(e.getLocalizedMessage(), e);
-      clickOnCommand(idTopMenuCommand);
-    }
-    redrawMenuItemsWait.until(elementToBeClickable(By.id(idCommandName)));
-    actionsFactory
-        .createAction(seleniumWebDriver)
-        .moveToElement(seleniumWebDriver.findElement(By.id(idCommandName)))
-        .perform();
-    // if element If the element is not drawn in time, in the catch block call submenu again
-    try {
-      redrawMenuItemsWait.until(visibilityOfElementLocated(By.id(idSubCommandName)));
-    } catch (TimeoutException e) {
-      WaitUtils.sleepQuietly(1);
-      seleniumWebDriver.findElement(By.id(idCommandName)).click();
-      redrawMenuItemsWait.until(visibilityOfElementLocated(By.id(idSubCommandName)));
-    }
-    seleniumWebDriver.findElement(By.id(idSubCommandName)).click();
-    redrawMenuItemsWait.until(invisibilityOfElementLocated(By.id(idCommandName)));
-
-    loader.waitOnClosed();
-  }
-
-  /**
-   * Run command from sub menu.
-   *
-   * @param idTopMenuCommand
-   * @param idCommandName
    * @param xpathSubCommandName
    */
   public void runCommandByXpath(
@@ -200,6 +165,41 @@ public class Menu {
       redrawMenuItemsWait.until(visibilityOfElementLocated(By.xpath(xpathSubCommandName)));
     }
     seleniumWebDriver.findElement(By.xpath(xpathSubCommandName)).click();
+    redrawMenuItemsWait.until(invisibilityOfElementLocated(By.id(idCommandName)));
+
+    loader.waitOnClosed();
+  }
+
+  /**
+   * Run command from sub menu.
+   *
+   * @param idTopMenuCommand
+   * @param idCommandName
+   * @param idSubCommandName
+   */
+  public void runCommand(String idTopMenuCommand, String idCommandName, String idSubCommandName) {
+    loader.waitOnClosed();
+    clickOnCommand(idTopMenuCommand);
+    try {
+      redrawMenuItemsWait.until(visibilityOfElementLocated(By.id(idCommandName)));
+    } catch (TimeoutException e) {
+      LOG.error(e.getLocalizedMessage(), e);
+      clickOnCommand(idTopMenuCommand);
+    }
+    redrawMenuItemsWait.until(elementToBeClickable(By.id(idCommandName)));
+    actionsFactory
+        .createAction(seleniumWebDriver)
+        .moveToElement(seleniumWebDriver.findElement(By.id(idCommandName)))
+        .perform();
+    // if element If the element is not drawn in time, in the catch block call submenu again
+    try {
+      redrawMenuItemsWait.until(visibilityOfElementLocated(By.id(idSubCommandName)));
+    } catch (TimeoutException e) {
+      WaitUtils.sleepQuietly(1);
+      seleniumWebDriver.findElement(By.id(idCommandName)).click();
+      redrawMenuItemsWait.until(visibilityOfElementLocated(By.id(idSubCommandName)));
+    }
+    seleniumWebDriver.findElement(By.id(idSubCommandName)).click();
     redrawMenuItemsWait.until(invisibilityOfElementLocated(By.id(idCommandName)));
 
     loader.waitOnClosed();

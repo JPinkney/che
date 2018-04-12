@@ -196,7 +196,7 @@ public class CodenvyEditor {
     String DEBUGGER_BREAKPOINT_CONDITION =
         "//div[@class='breakpoint %s condition' and text()='%d']";
     String DEBUGGER_BREAKPOINT_DISABLED = "//div[@class='breakpoint disabled' and text()='%d']";
-    String JAVA_DOC_POPUP = "//div[@class='gwt-PopupPanel']//iframe";
+    String JAVA_DOC_POPUP = "//div[contains(@class, 'textviewTooltip')]";
     String AUTOCOMPLETE_PROPOSAL_JAVA_DOC_POPUP =
         "//div//iframe[contains(@src, 'api/java/code-assist/compute/info?')]";
     String HIGHLIGHT_ITEM_PATTERN = "//li[@selected='true']//span[text()='%s']";
