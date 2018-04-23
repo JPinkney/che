@@ -42,24 +42,14 @@ import org.slf4j.LoggerFactory;
  * @author Thomas Mäder
  */
 @Singleton
-public class JavaLanguageServerLauncher extends LanguageServerLauncherTemplate
+public class JavaLanguageServerLauncher extends JavaLaunguageServerTemplate
     implements ServerInitializerObserver {
   private static final Logger LOG = LoggerFactory.getLogger(JavaLanguageServerLauncher.class);
-
-  private static final LanguageServerDescription DESCRIPTION = createServerDescription();
-
-  private final Path launchScript;
-  private ProcessorJsonRpcCommunication processorJsonRpcCommunication;
 
   @Inject
   public JavaLanguageServerLauncher(ProcessorJsonRpcCommunication processorJsonRpcCommunication) {
     this.processorJsonRpcCommunication = processorJsonRpcCommunication;
     launchScript = Paths.get(System.getenv("HOME"), "che/ls-java/launch.sh");
-  }
-
-  @Override
-  public boolean isAbleToLaunch() {
-    return Files.exists(launchScript);
   }
 
   protected LanguageServer connectToLanguageServer(
@@ -87,20 +77,6 @@ public class JavaLanguageServerLauncher extends LanguageServerLauncherTemplate
     return wrapped;
   }
 
-  public void sendStatusReport(StatusReport report) {
-    LOG.info("{}: {}", report.getType(), report.getMessage());
-  }
-
-  /**
-   * The show message notification is sent from a server to a client to ask the client to display a
-   * particular message in the user interface.
-   *
-   * @param report information about report
-   */
-  public void sendProgressReport(ProgressReport report) {
-    processorJsonRpcCommunication.sendProgressNotification(report);
-  }
-
   protected Process startLanguageServerProcess(String fileUri) throws LanguageServerException {
     ProcessBuilder processBuilder = new ProcessBuilder(launchScript.toString());
     processBuilder.directory(launchScript.getParent().toFile());
@@ -113,35 +89,4 @@ public class JavaLanguageServerLauncher extends LanguageServerLauncherTemplate
     }
   }
 
-  public LanguageServerDescription getDescription() {
-    return DESCRIPTION;
-  }
-
-  private static LanguageServerDescription createServerDescription() {
-    LanguageServerDescription description =
-        new LanguageServerDescription(
-            "org.eclipse.che.plugin.java.languageserver",
-            Arrays.asList("javaSource", "javaClass"),
-            Arrays.asList(
-                new DocumentFilter(null, null, "jdt"), new DocumentFilter(null, null, "chelib")),
-            Arrays.asList(
-                "glob:**/*.java",
-                "glob:**/pom.xml",
-                "glob:**/*.gradle",
-                "glob:**/.project",
-                "glob:**/.classpath",
-                "glob:**/settings/*.prefs"));
-    return description;
-  }
-
-  @Override
-  public void onServerInitialized(
-      LanguageServerLauncher launcher,
-      LanguageServer server,
-      ServerCapabilities capabilities,
-      String rootPath) {
-    Map<String, String> settings =
-        Collections.singletonMap("java.configuration.updateBuildConfiguration", "automatic");
-    server.getWorkspaceService().didChangeConfiguration(new DidChangeConfigurationParams(settings));
-  }
 }

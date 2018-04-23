@@ -179,7 +179,15 @@
                   "protocol" : "http"
                 }
               },
-              "attributes" : {}
+              "attributes" : {},
+              "volumes": {
+                "m2": {
+                  "path": "~/.m2"
+                },
+                "ls-java-data": {
+                  "path": "~/che/ls-java/data"
+                }
+              }
             },
             "db": {
               "installers": [
@@ -267,7 +275,15 @@
                   "protocol" : "http"
                 }
               },
-              "attributes" : {}
+              "attributes" : {},
+              "volumes": {
+                "m2": {
+                  "path": "~/.m2"
+                },
+                "ls-java-data": {
+                  "path": "~/che/ls-java/data"
+                }
+              }
             },
             "db": {
               "installers": [
@@ -358,6 +374,14 @@
               },
               "attributes" : {
                 "memoryLimitBytes": "2147483648"
+              },
+              "volumes": {
+                "m2": {
+                  "path": "~/.m2"
+                },
+                "ls-java-data": {
+                  "path": "~/che/ls-java/data"
+                }
               }
             }
           },
@@ -1415,6 +1439,14 @@
               },
               "attributes" : {
                 "memoryLimitBytes": "2147483648"
+              },
+              "volumes": {
+                "m2": {
+                  "path": "~/.m2"
+                },
+                "ls-java-data": {
+                  "path": "~/che/ls-java/data"
+                }
               }
             }
           },
@@ -1487,6 +1519,14 @@
               "servers": {},
               "attributes" : {
                 "memoryLimitBytes": "2147483648"
+              },
+              "volumes": {
+                "m2": {
+                  "path": "~/.m2"
+                },
+                "ls-java-data": {
+                  "path": "~/che/ls-java/data"
+                }
               }
             }
           },
@@ -1870,6 +1910,14 @@
               },
               "attributes" : {
                 "memoryLimitBytes": "2147483648"
+              },
+              "volumes": {
+                "m2": {
+                  "path": "~/.m2"
+                },
+                "ls-java-data": {
+                  "path": "~/che/ls-java/data"
+                }
               }
             }
           },
@@ -2224,6 +2272,14 @@
               },
               "attributes": {
                 "memoryLimitBytes": "2147483648"
+              },
+              "volumes": {
+                "m2": {
+                  "path": "~/.m2"
+                },
+                "ls-java-data": {
+                  "path": "~/che/ls-java/data"
+                }
               }
             }
           },
@@ -2328,6 +2384,14 @@
               },
               "attributes": {
                 "memoryLimitBytes": "2147483648"
+              },
+              "volumes": {
+                "m2": {
+                  "path": "~/.m2"
+                },
+                "ls-java-data": {
+                  "path": "~/che/ls-java/data"
+                }
               }
             }
           }
@@ -2422,6 +2486,14 @@
                 "codeserver" : {
                   "port" : "9876",
                   "protocol" : "http"
+                }
+              },
+              "volumes": {
+                "m2": {
+                  "path": "~/.m2"
+                },
+                "ls-java-data": {
+                  "path": "~/che/ls-java/data"
                 }
               }
             }
