@@ -17,8 +17,9 @@ public class LsRemoteModule extends AbstractModule {
 
   @Override
   protected void configure() {
-    Multibinder.newSetBinder(binder(), RemoteLsLauncherProvider.class)
-        .addBinding()
-        .to(SocketLsLauncherProvider.class);
+    Multibinder<RemoteLsLauncherProvider> remoteLSBinder =
+        Multibinder.newSetBinder(binder(), RemoteLsLauncherProvider.class);
+    remoteLSBinder.addBinding().to(SocketLsLauncherProvider.class);
+    // remoteLSBinder.addBinding().to(CustomSocketLsLauncherProvider.class);
   }
 }

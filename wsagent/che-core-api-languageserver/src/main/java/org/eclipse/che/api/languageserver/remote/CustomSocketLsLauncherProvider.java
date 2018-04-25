@@ -11,7 +11,6 @@
 package org.eclipse.che.api.languageserver.remote;
 
 import static java.util.Collections.emptySet;
-import static java.util.Collections.unmodifiableSet;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.net.URI;
@@ -32,20 +31,23 @@ import org.slf4j.Logger;
 
 /** Provides socket based language server launchers */
 @Singleton
-class SocketLsLauncherProvider implements RemoteLsLauncherProvider {
+class CustomSocketLsLauncherProvider implements RemoteLsLauncherProvider {
   private static final Logger LOG = getLogger(SocketLsLauncherProvider.class);
 
   private final LsConfigurationDetector lsConfigurationDetector;
   private final LsConfigurationExtractor lsConfigurationExtractor;
+  private final Set<CustomSocketLanguageServerLauncher> customSocketLanguageServerLaunchers;
 
   private final Map<String, LanguageServerLauncher> lslRegistry = new ConcurrentHashMap<>();
 
   @Inject
-  public SocketLsLauncherProvider(
+  public CustomSocketLsLauncherProvider(
       LsConfigurationDetector lsConfigurationDetector,
-      LsConfigurationExtractor lsConfigurationExtractor) {
+      LsConfigurationExtractor lsConfigurationExtractor,
+      Set<CustomSocketLanguageServerLauncher> customSocketLanguageServerLauncher) {
     this.lsConfigurationDetector = lsConfigurationDetector;
     this.lsConfigurationExtractor = lsConfigurationExtractor;
+    this.customSocketLanguageServerLaunchers = customSocketLanguageServerLauncher;
   }
 
   @Override
@@ -66,11 +68,6 @@ class SocketLsLauncherProvider implements RemoteLsLauncherProvider {
         String serverUrl = server.getUrl();
         Map<String, String> serverAttributes = server.getAttributes();
 
-        if (serverAttributes.get("type") != null
-            && serverAttributes.get("type").toLowerCase().equals("custom")) {
-          continue;
-        }
-
         if (lslRegistry.keySet().contains(machineName + serverName)) {
           continue;
         }
@@ -86,15 +83,25 @@ class SocketLsLauncherProvider implements RemoteLsLauncherProvider {
           String host = uri.getHost();
           int port = uri.getPort();
 
-          SocketLanguageServerLauncher launcher =
-              new SocketLanguageServerLauncher(description, host, port);
-          lslRegistry.put(machineName + serverName, launcher);
+          // Change the port and uri for the custom ones
+          for (CustomSocketLanguageServerLauncher c : customSocketLanguageServerLaunchers) {
+            if (c.getHost().equals(null) && c.getPort() == 0) {
+              c.setHost(host);
+              c.setPort(port);
+            }
+          }
+
         } catch (URISyntaxException e) {
           LOG.error("Can't parse server url: {}", serverUrl, e);
         }
       }
     }
 
-    return unmodifiableSet(new HashSet<>(lslRegistry.values()));
+    Set<LanguageServerLauncher> l = new HashSet<>();
+    for (CustomSocketLanguageServerLauncher c : customSocketLanguageServerLaunchers) {
+      l.add(c);
+    }
+
+    return l;
   }
 }
