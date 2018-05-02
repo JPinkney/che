@@ -11,7 +11,6 @@
 package org.eclipse.che.api.languageserver.remote;
 
 import static java.util.Collections.emptySet;
-import static java.util.Collections.unmodifiableSet;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.net.URI;
@@ -30,22 +29,29 @@ import org.eclipse.che.api.languageserver.launcher.LanguageServerLauncher;
 import org.eclipse.che.api.languageserver.registry.LanguageServerDescription;
 import org.slf4j.Logger;
 
-/** Provides socket based language server launchers */
+/**
+ * Provides custom socket based language server launchers by receiving launchers and settings the
+ * port and host
+ */
 @Singleton
-class SocketLsLauncherProvider implements RemoteLsLauncherProvider {
+class CustomSocketLsLauncherProvider implements RemoteLsLauncherProvider {
   private static final Logger LOG = getLogger(SocketLsLauncherProvider.class);
 
   private final LsConfigurationDetector lsConfigurationDetector;
   private final LsConfigurationExtractor lsConfigurationExtractor;
+  private final Set<CustomSocketLanguageServerLauncher> customSocketLanguageServerLaunchers;
 
-  private final Map<String, LanguageServerLauncher> lslRegistry = new ConcurrentHashMap<>();
+  private final Map<String, LanguageServerLauncher> fallbackSocketRegistry =
+      new ConcurrentHashMap<>();
 
   @Inject
-  public SocketLsLauncherProvider(
+  public CustomSocketLsLauncherProvider(
       LsConfigurationDetector lsConfigurationDetector,
-      LsConfigurationExtractor lsConfigurationExtractor) {
+      LsConfigurationExtractor lsConfigurationExtractor,
+      Set<CustomSocketLanguageServerLauncher> customSocketLanguageServerLauncher) {
     this.lsConfigurationDetector = lsConfigurationDetector;
     this.lsConfigurationExtractor = lsConfigurationExtractor;
+    this.customSocketLanguageServerLaunchers = customSocketLanguageServerLauncher;
   }
 
   @Override
@@ -55,6 +61,7 @@ class SocketLsLauncherProvider implements RemoteLsLauncherProvider {
       return emptySet();
     }
 
+    Set<LanguageServerLauncher> customSocketLaunchers = new HashSet<>();
     for (Map.Entry<String, ? extends Machine> machineEntry : runtime.getMachines().entrySet()) {
       String machineName = machineEntry.getKey();
       Machine machine = machineEntry.getValue();
@@ -66,12 +73,13 @@ class SocketLsLauncherProvider implements RemoteLsLauncherProvider {
         String serverUrl = server.getUrl();
         Map<String, String> serverAttributes = server.getAttributes();
 
-        if (serverAttributes.get("custom_provider") != null
-            && serverAttributes.get("custom_provider").equals("true")) {
+        if (serverAttributes.get("custom_provider") == null
+            || (serverAttributes.get("custom_provider") != null
+                && !serverAttributes.get("custom_provider").equals("true"))) {
           continue;
         }
 
-        if (lslRegistry.keySet().contains(machineName + serverName)) {
+        if (fallbackSocketRegistry.keySet().contains(machineName + serverName)) {
           continue;
         }
 
@@ -86,15 +94,35 @@ class SocketLsLauncherProvider implements RemoteLsLauncherProvider {
           String host = uri.getHost();
           int port = uri.getPort();
 
-          SocketLanguageServerLauncher launcher =
-              new SocketLanguageServerLauncher(description, host, port);
-          lslRegistry.put(machineName + serverName, launcher);
+          boolean matches = false;
+          // Change the port and uri for the custom ones
+          for (CustomSocketLanguageServerLauncher c : customSocketLanguageServerLaunchers) {
+
+            // If it matches up with a launcher
+            if ("java".equals(description.getId())) {
+              c.setHost(host);
+              c.setPort(port);
+
+              customSocketLaunchers.add(c);
+              matches = true;
+            }
+          }
+
+          if (!matches) {
+            // Here we'd need to register the default socket provider
+            SocketLanguageServerLauncher launcher =
+                new SocketLanguageServerLauncher(description, host, port);
+            fallbackSocketRegistry.put(machineName + serverName, launcher);
+          }
+
         } catch (URISyntaxException e) {
           LOG.error("Can't parse server url: {}", serverUrl, e);
         }
       }
     }
 
-    return unmodifiableSet(new HashSet<>(lslRegistry.values()));
+    customSocketLaunchers.addAll(fallbackSocketRegistry.values());
+
+    return customSocketLaunchers;
   }
 }
