@@ -201,7 +201,7 @@ public class LanguageServerRegistryImpl implements LanguageServerRegistry {
                 threadId,
                 fileUri);
             String rootUri = launchingStrategy.getRootUri(fileUri);
-            InitializeParams initializeParams = prepareInitializeParams(rootUri);
+            InitializeParams initializeParams = prepareInitializeParams(launcher, rootUri);
             CompletableFuture<InitializeResult> completableFuture =
                 server.initialize(initializeParams);
             completableFuture
@@ -541,9 +541,14 @@ public class LanguageServerRegistryImpl implements LanguageServerRegistry {
   }
 
   @SuppressWarnings("deprecation")
-  private InitializeParams prepareInitializeParams(String rootUri) {
+  private InitializeParams prepareInitializeParams(
+      LanguageServerLauncher launcher, String rootUri) {
     InitializeParams initializeParams = new InitializeParams();
-    initializeParams.setProcessId(PROCESS_ID);
+    if (launcher.isLocal()) {
+      initializeParams.setProcessId(PROCESS_ID);
+    } else {
+      initializeParams.setProcessId(null);
+    }
     initializeParams.setRootPath(LanguageServiceUtils.removePrefixUri(rootUri));
     initializeParams.setRootUri(rootUri);
     initializeParams.setCapabilities(CLIENT_CAPABILITIES);

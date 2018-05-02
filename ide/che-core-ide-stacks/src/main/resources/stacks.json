@@ -179,7 +179,15 @@
                   "protocol" : "http"
                 }
               },
-              "attributes" : {}
+              "attributes" : {},
+              "volumes": {
+                "m2": {
+                  "path": "/home/user/.m2"
+                },
+                "javadata": {
+                  "path": "/home/user/jdtls/data"
+                }
+              }
             },
             "db": {
               "installers": [
@@ -267,7 +275,15 @@
                   "protocol" : "http"
                 }
               },
-              "attributes" : {}
+              "attributes" : {},
+              "volumes": {
+                "m2": {
+                  "path": "/home/user/.m2"
+                },
+                "javadata": {
+                  "path": "/home/user/jdtls/data"
+                }
+              }
             },
             "db": {
               "installers": [
@@ -358,6 +374,14 @@
               },
               "attributes" : {
                 "memoryLimitBytes": "2147483648"
+              },
+              "volumes": {
+                "m2": {
+                  "path": "/home/user/.m2"
+                },
+                "javadata": {
+                  "path": "/home/user/jdtls/data"
+                }
               }
             }
           },
@@ -1415,6 +1439,14 @@
               },
               "attributes" : {
                 "memoryLimitBytes": "2147483648"
+              },
+              "volumes": {
+                "m2": {
+                  "path": "/home/user/.m2"
+                },
+                "javadata": {
+                  "path": "/home/user/jdtls/data"
+                }
               }
             }
           },
@@ -1487,6 +1519,14 @@
               "servers": {},
               "attributes" : {
                 "memoryLimitBytes": "2147483648"
+              },
+              "volumes": {
+                "m2": {
+                  "path": "/home/user/.m2"
+                },
+                "javadata": {
+                  "path": "/home/user/jdtls/data"
+                }
               }
             }
           },
@@ -1870,6 +1910,14 @@
               },
               "attributes" : {
                 "memoryLimitBytes": "2147483648"
+              },
+              "volumes": {
+                "m2": {
+                  "path": "/home/user/.m2"
+                },
+                "javadata": {
+                  "path": "/home/user/jdtls/data"
+                }
               }
             }
           },
@@ -2224,6 +2272,14 @@
               },
               "attributes": {
                 "memoryLimitBytes": "2147483648"
+              },
+              "volumes": {
+                "m2": {
+                  "path": "/home/user/.m2"
+                },
+                "javadata": {
+                  "path": "/home/user/jdtls/data"
+                }
               }
             }
           },
@@ -2328,6 +2384,14 @@
               },
               "attributes": {
                 "memoryLimitBytes": "2147483648"
+              },
+              "volumes": {
+                "m2": {
+                  "path": "/home/user/.m2"
+                },
+                "javadata": {
+                  "path": "/home/user/jdtls/data"
+                }
               }
             }
           }
@@ -2422,6 +2486,14 @@
                 "codeserver" : {
                   "port" : "9876",
                   "protocol" : "http"
+                }
+              },
+              "volumes": {
+                "m2": {
+                  "path": "/home/user/.m2"
+                },
+                "javadata": {
+                  "path": "/home/user/jdtls/data"
                 }
               }
             }
@@ -2603,8 +2675,8 @@
       "defaultEnv": "default",
       "description": null
     }
-},
-{
+  },
+  {
     "id": "centos-go",
     "creator": "Dharmit Shah",
     "name": "CentOS Go",
@@ -2670,49 +2742,49 @@
     }
   },
   {
-  "id": "centos",
-  "creator": "Dharmit Shah",
-  "name": "CentOS blank",
-  "description": "CentOS Blank Stack",
-  "scope": "advanced",
-  "tags": [
-    "Blank",
-    "CentOS",
-    "Git",
-    "Subversion"
-  ],
-  "components": [],
-  "workspaceConfig": {
-    "environments": {
-      "default": {
-        "machines": {
-          "dev-machine": {
-            "installers": [
-              "org.eclipse.che.exec",
-              "org.eclipse.che.terminal",
-              "org.eclipse.che.ws-agent"
-            ],
-            "servers": {},
-            "attributes": {
-              "memoryLimitBytes": "2147483648"
+    "id": "centos",
+    "creator": "Dharmit Shah",
+    "name": "CentOS blank",
+    "description": "CentOS Blank Stack",
+    "scope": "advanced",
+    "tags": [
+      "Blank",
+      "CentOS",
+      "Git",
+      "Subversion"
+    ],
+    "components": [],
+    "workspaceConfig": {
+      "environments": {
+        "default": {
+          "machines": {
+            "dev-machine": {
+              "installers": [
+                "org.eclipse.che.exec",
+                "org.eclipse.che.terminal",
+                "org.eclipse.che.ws-agent"
+              ],
+              "servers": {},
+              "attributes": {
+                "memoryLimitBytes": "2147483648"
+              }
             }
+          },
+          "recipe": {
+            "content": "registry.centos.org/che-stacks/centos-stack-base",
+            "type": "dockerimage"
           }
-        },
-        "recipe": {
-          "content": "registry.centos.org/che-stacks/centos-stack-base",
-          "type": "dockerimage"
         }
-      }
+      },
+      "name": "default",
+      "defaultEnv": "default",
+      "description": null
     },
-    "name": "default",
-    "defaultEnv": "default",
-    "description": null
+    "stackIcon": {
+      "name": "type-blank.svg",
+      "mediaType": "image/svg+xml"
+    }
   },
-  "stackIcon": {
-    "name": "type-blank.svg",
-    "mediaType": "image/svg+xml"
-  }
- },
   {
     "description": "Ceylon stack with Java, JavaScript and Dart backends on CentOS.",
     "creator": "ide",

@@ -778,7 +778,9 @@ public class JavaLanguageServerExtensionService {
 
   private Optional<InitializedLanguageServer> findInitializedLanguageServer() {
     return registry.findServer(
-        server -> (server.getLauncher() instanceof JavaLanguageServerLauncher));
+        server ->
+            ((server.getLauncher() instanceof JavaLanguageServerLauncher)
+                || (server.getLauncher() instanceof JavaSocketLanguageServerLauncher)));
   }
 
   private void fixLocation(ExtendedSymbolInformation symbol) {
