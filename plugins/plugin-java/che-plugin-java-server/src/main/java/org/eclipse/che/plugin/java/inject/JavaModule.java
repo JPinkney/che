@@ -15,11 +15,13 @@ import static java.util.Arrays.asList;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 import org.eclipse.che.api.languageserver.launcher.LanguageServerLauncher;
+import org.eclipse.che.api.languageserver.remote.CustomSocketLanguageServerLauncher;
 import org.eclipse.che.api.languageserver.shared.model.LanguageDescription;
 import org.eclipse.che.inject.DynaModule;
 import org.eclipse.che.plugin.java.languageserver.JavaLanguageServerExtensionService;
 import org.eclipse.che.plugin.java.languageserver.JavaLanguageServerJsonRpcMessenger;
 import org.eclipse.che.plugin.java.languageserver.JavaLanguageServerLauncher;
+import org.eclipse.che.plugin.java.languageserver.JavaSocketLanguageServerLauncher;
 import org.eclipse.che.plugin.java.languageserver.ProjectsListener;
 
 /** @author Anatolii Bazko */
@@ -36,6 +38,9 @@ public class JavaModule extends AbstractModule {
     Multibinder.newSetBinder(binder(), LanguageServerLauncher.class)
         .addBinding()
         .to(JavaLanguageServerLauncher.class);
+    Multibinder.newSetBinder(binder(), CustomSocketLanguageServerLauncher.class)
+        .addBinding()
+        .to(JavaSocketLanguageServerLauncher.class);
     LanguageDescription javaSource = new LanguageDescription();
     javaSource.setFileExtensions(asList("java"));
     javaSource.setLanguageId(JAVA_SOURCE);

@@ -14,10 +14,6 @@ import static java.util.Collections.emptySet;
 import static java.util.Collections.unmodifiableSet;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashSet;
@@ -30,14 +26,8 @@ import org.eclipse.che.api.core.model.workspace.Runtime;
 import org.eclipse.che.api.core.model.workspace.Workspace;
 import org.eclipse.che.api.core.model.workspace.runtime.Machine;
 import org.eclipse.che.api.core.model.workspace.runtime.Server;
-import org.eclipse.che.api.languageserver.exception.LanguageServerException;
 import org.eclipse.che.api.languageserver.launcher.LanguageServerLauncher;
-import org.eclipse.che.api.languageserver.launcher.LaunchingStrategy;
-import org.eclipse.che.api.languageserver.launcher.PerWorkspaceLaunchingStrategy;
 import org.eclipse.che.api.languageserver.registry.LanguageServerDescription;
-import org.eclipse.lsp4j.jsonrpc.Launcher;
-import org.eclipse.lsp4j.services.LanguageClient;
-import org.eclipse.lsp4j.services.LanguageServer;
 import org.slf4j.Logger;
 
 /** Provides socket based language server launchers */
@@ -47,15 +37,18 @@ class SocketLsLauncherProvider implements RemoteLsLauncherProvider {
 
   private final LsConfigurationDetector lsConfigurationDetector;
   private final LsConfigurationExtractor lsConfigurationExtractor;
+  private final Set<CustomSocketLanguageServerLauncher> customSocketLanguageServerLaunchers;
 
   private final Map<String, LanguageServerLauncher> lslRegistry = new ConcurrentHashMap<>();
 
   @Inject
   public SocketLsLauncherProvider(
       LsConfigurationDetector lsConfigurationDetector,
-      LsConfigurationExtractor lsConfigurationExtractor) {
+      LsConfigurationExtractor lsConfigurationExtractor,
+      Set<CustomSocketLanguageServerLauncher> customSocketLanguageServerLauncher) {
     this.lsConfigurationDetector = lsConfigurationDetector;
     this.lsConfigurationExtractor = lsConfigurationExtractor;
+    this.customSocketLanguageServerLaunchers = customSocketLanguageServerLauncher;
   }
 
   @Override
@@ -65,6 +58,7 @@ class SocketLsLauncherProvider implements RemoteLsLauncherProvider {
       return emptySet();
     }
 
+    Set<LanguageServerLauncher> customSocketLaunchers = new HashSet<>();
     for (Map.Entry<String, ? extends Machine> machineEntry : runtime.getMachines().entrySet()) {
       String machineName = machineEntry.getKey();
       Machine machine = machineEntry.getValue();
@@ -91,69 +85,32 @@ class SocketLsLauncherProvider implements RemoteLsLauncherProvider {
           String host = uri.getHost();
           int port = uri.getPort();
 
-          SocketLanguageServerLauncher launcher =
-              new SocketLanguageServerLauncher(description, host, port);
-          lslRegistry.put(machineName + serverName, launcher);
+          boolean foundCustomLauncher = false;
+
+          for (CustomSocketLanguageServerLauncher c : customSocketLanguageServerLaunchers) {
+
+            if (c.getDescription().getId().equals(description.getId())) {
+              c.setHost(host);
+              c.setPort(port);
+
+              customSocketLaunchers.add(c);
+              foundCustomLauncher = true;
+            }
+          }
+
+          if (!foundCustomLauncher) {
+            SocketLanguageServerLauncher launcher =
+                new SocketLanguageServerLauncher(description, host, port);
+            lslRegistry.put(machineName + serverName, launcher);
+          }
+
         } catch (URISyntaxException e) {
           LOG.error("Can't parse server url: {}", serverUrl, e);
         }
       }
     }
 
-    return unmodifiableSet(new HashSet<>(lslRegistry.values()));
-  }
-
-  private static final class SocketLanguageServerLauncher implements LanguageServerLauncher {
-
-    private final LanguageServerDescription languageServerDescription;
-    private final String host;
-    private final int port;
-
-    SocketLanguageServerLauncher(
-        LanguageServerDescription languageServerDescription, String host, int port) {
-      this.languageServerDescription = languageServerDescription;
-      this.host = host;
-      this.port = port;
-    }
-
-    @Override
-    public LanguageServer launch(String projectPath, LanguageClient client)
-        throws LanguageServerException {
-      try {
-        Socket socket = new Socket(host, port);
-        socket.setKeepAlive(true);
-        InputStream inputStream = socket.getInputStream();
-        OutputStream outputStream = socket.getOutputStream();
-
-        Launcher<LanguageServer> launcher =
-            Launcher.createLauncher(client, LanguageServer.class, inputStream, outputStream);
-
-        launcher.startListening();
-        return launcher.getRemoteProxy();
-      } catch (IOException e) {
-        throw new LanguageServerException(
-            "Can't launch language server for project: " + projectPath, e);
-      }
-    }
-
-    @Override
-    public LaunchingStrategy getLaunchingStrategy() {
-      return PerWorkspaceLaunchingStrategy.INSTANCE;
-    }
-
-    @Override
-    public boolean isLocal() {
-      return false;
-    }
-
-    @Override
-    public LanguageServerDescription getDescription() {
-      return languageServerDescription;
-    }
-
-    @Override
-    public boolean isAbleToLaunch() {
-      return host != null && languageServerDescription != null;
-    }
+    customSocketLaunchers.addAll(lslRegistry.values());
+    return unmodifiableSet(new HashSet<>(customSocketLaunchers));
   }
 }
