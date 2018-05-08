@@ -18,6 +18,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Proxy;
 import java.net.Socket;
 import java.util.Arrays;
+import javax.annotation.PreDestroy;
 import org.eclipse.che.api.languageserver.exception.LanguageServerException;
 import org.eclipse.che.api.languageserver.registry.DocumentFilter;
 import org.eclipse.che.api.languageserver.registry.LanguageServerDescription;
@@ -42,6 +43,7 @@ public class JavaSocketLanguageServerLauncher extends SocketLanguageServerLaunch
   private static final Logger LOG = LoggerFactory.getLogger(JavaLanguageServerLauncher.class);
   private int port;
   private String host;
+  private Socket socket;
 
   private static final LanguageServerDescription DESCRIPTION = createServerDescription();
 
@@ -54,6 +56,15 @@ public class JavaSocketLanguageServerLauncher extends SocketLanguageServerLaunch
     this.processorJsonRpcCommunication = processorJsonRpcCommunication;
   }
 
+  @PreDestroy
+  public void closeSocket() {
+    try {
+      socket.close();
+    } catch (IOException e) {
+
+    }
+  }
+
   @Override
   public boolean isAbleToLaunch() {
     return true;
@@ -63,7 +74,7 @@ public class JavaSocketLanguageServerLauncher extends SocketLanguageServerLaunch
   public LanguageServer launch(String projectPath, LanguageClient client)
       throws LanguageServerException {
     try {
-      Socket socket = new Socket(host, port);
+      socket = new Socket(host, port);
       socket.setKeepAlive(true);
       InputStream inputStream = socket.getInputStream();
       OutputStream outputStream = socket.getOutputStream();
