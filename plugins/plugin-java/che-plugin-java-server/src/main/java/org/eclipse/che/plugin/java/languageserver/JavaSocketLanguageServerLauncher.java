@@ -23,6 +23,8 @@ import org.eclipse.che.api.languageserver.service.FileContentAccess;
 import org.eclipse.che.api.languageserver.util.DynamicWrapper;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This launcher allows jdt.ls to be wrapped by the jdt.ls extension when launched via socket
@@ -32,12 +34,15 @@ import org.eclipse.lsp4j.services.LanguageServer;
 @Singleton
 public class JavaSocketLanguageServerLauncher extends SocketLanguageServerLauncher
     implements CustomSocketLanguageServerLauncher {
-
+  private static final Logger LOG = LoggerFactory.getLogger(JavaSocketLanguageServerLauncher.class);
   private static final LanguageServerDescription DESCRIPTION = createServerDescription();
+  private final ProcessorJsonRpcCommunication processorJsonRpcCommunication;
 
   @Inject
-  public JavaSocketLanguageServerLauncher() {
+  public JavaSocketLanguageServerLauncher(
+      ProcessorJsonRpcCommunication processorJsonRpcCommunication) {
     super(JavaLanguageServer.class, DESCRIPTION, "", 0);
+    this.processorJsonRpcCommunication = processorJsonRpcCommunication;
   }
 
   @Override
@@ -49,7 +54,12 @@ public class JavaSocketLanguageServerLauncher extends SocketLanguageServerLaunch
   public LanguageServer launch(String projectPath, LanguageClient client)
       throws LanguageServerException {
 
-    JavaLanguageServer proxy = super.launch(projectPath, client);
+    Object javaLangClient =
+        Proxy.newProxyInstance(
+            getClass().getClassLoader(),
+            new Class[] {LanguageClient.class, JavaLanguageClient.class},
+            new DynamicWrapper(this, client));
+    JavaLanguageServer proxy = super.launch(projectPath, (LanguageClient) javaLangClient);
     LanguageServer wrapped =
         (LanguageServer)
             Proxy.newProxyInstance(
@@ -61,5 +71,19 @@ public class JavaSocketLanguageServerLauncher extends SocketLanguageServerLaunch
 
   public LanguageServerDescription getDescription() {
     return DESCRIPTION;
+  }
+
+  public void sendStatusReport(StatusReport report) {
+    LOG.info("{}: {}", report.getType(), report.getMessage());
+  }
+
+  /**
+   * The show message notification is sent from a server to a client to ask the client to display a
+   * particular message in the user interface.
+   *
+   * @param report information about report
+   */
+  public void sendProgressReport(ProgressReport report) {
+    processorJsonRpcCommunication.sendProgressNotification(report);
   }
 }
