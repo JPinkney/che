@@ -24,7 +24,8 @@ public interface LanguageServerLauncher {
    * @param projectPath absolute path to the project
    * @param client an interface implementing handlers for server->client communication
    */
-  LanguageServer launch(String fileUri, LanguageClient client) throws LanguageServerException;
+  <T extends LanguageServer> T launch(String fileUri, LanguageClient client)
+      throws LanguageServerException;
 
   /** Gets the language server description */
   LanguageServerDescription getDescription();

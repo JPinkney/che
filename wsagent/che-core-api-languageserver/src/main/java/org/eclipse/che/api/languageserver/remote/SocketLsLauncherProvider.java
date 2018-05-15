@@ -28,6 +28,7 @@ import org.eclipse.che.api.core.model.workspace.runtime.Machine;
 import org.eclipse.che.api.core.model.workspace.runtime.Server;
 import org.eclipse.che.api.languageserver.launcher.LanguageServerLauncher;
 import org.eclipse.che.api.languageserver.registry.LanguageServerDescription;
+import org.eclipse.lsp4j.services.LanguageServer;
 import org.slf4j.Logger;
 
 /** Provides socket based language server launchers */
@@ -100,7 +101,7 @@ class SocketLsLauncherProvider implements RemoteLsLauncherProvider {
 
           if (!foundCustomLauncher) {
             SocketLanguageServerLauncher launcher =
-                new SocketLanguageServerLauncher(description, host, port);
+                new SocketLanguageServerLauncher(LanguageServer.class, description, host, port);
             lslRegistry.put(machineName + serverName, launcher);
           }
 

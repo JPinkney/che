@@ -110,7 +110,7 @@ public class JavaLanguageServerLauncher extends LanguageServerLauncherTemplate {
     return DESCRIPTION;
   }
 
-  private static LanguageServerDescription createServerDescription() {
+  protected static LanguageServerDescription createServerDescription() {
     LanguageServerDescription description =
         new LanguageServerDescription(
             "org.eclipse.che.plugin.java.languageserver",

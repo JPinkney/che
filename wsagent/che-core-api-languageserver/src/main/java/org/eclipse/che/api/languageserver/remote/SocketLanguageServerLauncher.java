@@ -1,5 +1,7 @@
 package org.eclipse.che.api.languageserver.remote;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -13,20 +15,28 @@ import org.eclipse.che.api.languageserver.registry.LanguageServerDescription;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageServer;
+import org.slf4j.Logger;
 
 /** Generic socket launcher for when language servers are started over sockets */
 public class SocketLanguageServerLauncher implements LanguageServerLauncher {
 
+  private static final Logger LOG = getLogger(SocketLanguageServerLauncher.class);
+
   private final LanguageServerDescription languageServerDescription;
-  private final String host;
-  private final int port;
+  private String host;
+  private int port;
   private Socket socket;
+  private Class customLanguageServerClass;
 
   protected SocketLanguageServerLauncher(
-      LanguageServerDescription languageServerDescription, String host, int port) {
+      Class customLanguageServerClass,
+      LanguageServerDescription languageServerDescription,
+      String host,
+      int port) {
     this.languageServerDescription = languageServerDescription;
     this.host = host;
     this.port = port;
+    this.customLanguageServerClass = customLanguageServerClass;
   }
 
   @PreDestroy
@@ -34,12 +44,12 @@ public class SocketLanguageServerLauncher implements LanguageServerLauncher {
     try {
       socket.close();
     } catch (IOException e) {
-
+      LOG.warn("Socket has not been closed successfully: " + e);
     }
   }
 
   @Override
-  public LanguageServer launch(String projectPath, LanguageClient client)
+  public <T extends LanguageServer> T launch(String projectPath, LanguageClient client)
       throws LanguageServerException {
     try {
       socket = new Socket(host, port);
@@ -47,8 +57,8 @@ public class SocketLanguageServerLauncher implements LanguageServerLauncher {
       InputStream inputStream = socket.getInputStream();
       OutputStream outputStream = socket.getOutputStream();
 
-      Launcher<LanguageServer> launcher =
-          Launcher.createLauncher(client, LanguageServer.class, inputStream, outputStream);
+      Launcher<T> launcher =
+          Launcher.createLauncher(client, customLanguageServerClass, inputStream, outputStream);
 
       launcher.startListening();
       return launcher.getRemoteProxy();
@@ -76,5 +86,13 @@ public class SocketLanguageServerLauncher implements LanguageServerLauncher {
   @Override
   public boolean isAbleToLaunch() {
     return host != null && languageServerDescription != null;
+  }
+
+  public void setPort(int port) {
+    this.port = port;
+  }
+
+  public void setHost(String host) {
+    this.host = host;
   }
 }
