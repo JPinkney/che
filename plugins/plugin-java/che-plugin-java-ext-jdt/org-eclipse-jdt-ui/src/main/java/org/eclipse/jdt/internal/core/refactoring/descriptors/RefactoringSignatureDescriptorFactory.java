@@ -32,12 +32,8 @@ import org.eclipse.jdt.core.refactoring.descriptors.IntroduceFactoryDescriptor;
 import org.eclipse.jdt.core.refactoring.descriptors.IntroduceIndirectionDescriptor;
 import org.eclipse.jdt.core.refactoring.descriptors.IntroduceParameterDescriptor;
 import org.eclipse.jdt.core.refactoring.descriptors.IntroduceParameterObjectDescriptor;
-import org.eclipse.jdt.core.refactoring.descriptors.MoveDescriptor;
-import org.eclipse.jdt.core.refactoring.descriptors.MoveMethodDescriptor;
-import org.eclipse.jdt.core.refactoring.descriptors.MoveStaticMembersDescriptor;
 import org.eclipse.jdt.core.refactoring.descriptors.PullUpDescriptor;
 import org.eclipse.jdt.core.refactoring.descriptors.PushDownDescriptor;
-import org.eclipse.jdt.core.refactoring.descriptors.RenameJavaElementDescriptor;
 import org.eclipse.jdt.core.refactoring.descriptors.UseSupertypeDescriptor;
 
 /**
@@ -229,33 +225,6 @@ public class RefactoringSignatureDescriptorFactory {
     return new ConvertMemberTypeDescriptor(project, description, comment, arguments, flags);
   }
 
-  public static MoveMethodDescriptor createMoveMethodDescriptor() {
-    return new MoveMethodDescriptor();
-  }
-
-  public static MoveMethodDescriptor createMoveMethodDescriptor(
-      String project, String description, String comment, Map arguments, int flags) {
-    return new MoveMethodDescriptor(project, description, comment, arguments, flags);
-  }
-
-  public static MoveDescriptor createMoveDescriptor() {
-    return new MoveDescriptor();
-  }
-
-  public static MoveDescriptor createMoveDescriptor(
-      String project, String description, String comment, Map arguments, int flags) {
-    return new MoveDescriptor(project, description, comment, arguments, flags);
-  }
-
-  public static MoveStaticMembersDescriptor createMoveStaticMembersDescriptor() {
-    return new MoveStaticMembersDescriptor();
-  }
-
-  public static MoveStaticMembersDescriptor createMoveStaticMembersDescriptor(
-      String project, String description, String comment, Map arguments, int flags) {
-    return new MoveStaticMembersDescriptor(project, description, comment, arguments, flags);
-  }
-
   public static ConvertLocalVariableDescriptor createConvertLocalVariableDescriptor() {
     return new ConvertLocalVariableDescriptor();
   }
@@ -281,15 +250,6 @@ public class RefactoringSignatureDescriptorFactory {
   public static PushDownDescriptor createPushDownDescriptor(
       String project, String description, String comment, Map arguments, int flags) {
     return new PushDownDescriptor(project, description, comment, arguments, flags);
-  }
-
-  public static RenameJavaElementDescriptor createRenameJavaElementDescriptor(String id) {
-    return new RenameJavaElementDescriptor(id);
-  }
-
-  public static RenameJavaElementDescriptor createRenameJavaElementDescriptor(
-      String id, String project, String description, String comment, Map arguments, int flags) {
-    return new RenameJavaElementDescriptor(id, project, description, comment, arguments, flags);
   }
 
   public static EncapsulateFieldDescriptor createEncapsulateFieldDescriptor() {

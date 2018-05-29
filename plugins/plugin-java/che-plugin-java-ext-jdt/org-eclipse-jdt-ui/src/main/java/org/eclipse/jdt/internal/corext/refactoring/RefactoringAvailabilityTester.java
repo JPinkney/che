@@ -29,7 +29,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.ILocalVariable;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IPackageDeclaration;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
@@ -740,122 +739,6 @@ public final class RefactoringAvailabilityTester {
         && !selection.resolveInAnnotation()
         && isIntroduceParameterAvailable(
             selection.resolveSelectedNodes(), selection.resolveCoveringNode());
-  }
-
-  public static boolean isMoveAvailable(final IResource[] resources, final IJavaElement[] elements)
-      throws JavaModelException {
-    if (elements != null) {
-      for (int index = 0; index < elements.length; index++) {
-        IJavaElement element = elements[index];
-        if (element == null || !element.exists()) return false;
-        if ((element instanceof IType) && ((IType) element).isLocal()) return false;
-        if ((element instanceof IPackageDeclaration)) return false;
-        if (element instanceof IField && JdtFlags.isEnum((IMember) element)) return false;
-      }
-    }
-    return ReorgPolicyFactory.createMovePolicy(resources, elements).canEnable();
-  }
-
-  public static boolean isMoveAvailable(final JavaTextSelection selection)
-      throws JavaModelException {
-    final IJavaElement element = selection.resolveEnclosingElement();
-    if (element == null) return false;
-    return isMoveAvailable(new IResource[0], new IJavaElement[] {element});
-  }
-
-  public static boolean isMoveInnerAvailable(final IStructuredSelection selection)
-      throws JavaModelException {
-    if (selection.size() == 1) {
-      Object first = selection.getFirstElement();
-      if (first instanceof IType) {
-        return isMoveInnerAvailable((IType) first);
-      }
-    }
-    return false;
-  }
-
-  public static boolean isMoveInnerAvailable(final IType type) throws JavaModelException {
-    return Checks.isAvailable(type)
-        && !Checks.isAnonymous(type)
-        && !JavaElementUtil.isMainType(type)
-        && !Checks.isInsideLocalType(type);
-  }
-
-  public static boolean isMoveInnerAvailable(final JavaTextSelection selection)
-      throws JavaModelException {
-    IType type =
-        RefactoringAvailabilityTester.getDeclaringType(selection.resolveEnclosingElement());
-    if (type == null) return false;
-    return isMoveInnerAvailable(type);
-  }
-
-  public static boolean isMoveMethodAvailable(final IMethod method) throws JavaModelException {
-    return method.exists()
-        && !method.isConstructor()
-        && !method.isBinary()
-        && !method.isReadOnly()
-        && !JdtFlags.isStatic(method)
-        && (JdtFlags.isDefaultMethod(method) || !method.getDeclaringType().isInterface());
-  }
-
-  public static boolean isMoveMethodAvailable(final IStructuredSelection selection)
-      throws JavaModelException {
-    if (selection.size() == 1) {
-      final Object first = selection.getFirstElement();
-      return first instanceof IMethod && isMoveMethodAvailable((IMethod) first);
-    }
-    return false;
-  }
-
-  public static boolean isMoveMethodAvailable(final JavaTextSelection selection)
-      throws JavaModelException {
-    final IJavaElement method = selection.resolveEnclosingElement();
-    if (!(method instanceof IMethod)) return false;
-    return isMoveMethodAvailable((IMethod) method);
-  }
-
-  public static boolean isMoveStaticAvailable(final IMember member) throws JavaModelException {
-    if (!member.exists()) return false;
-    final int type = member.getElementType();
-    if (type != IJavaElement.METHOD && type != IJavaElement.FIELD && type != IJavaElement.TYPE)
-      return false;
-    if (JdtFlags.isEnum(member) && type != IJavaElement.TYPE) return false;
-    final IType declaring = member.getDeclaringType();
-    if (declaring == null) return false;
-    if (!Checks.isAvailable(member)) return false;
-    if (type == IJavaElement.METHOD && declaring.isInterface()) {
-      boolean is18OrHigher = JavaModelUtil.is18OrHigher(member.getJavaProject());
-      if (!is18OrHigher || !Flags.isStatic(member.getFlags())) return false;
-    }
-    if (type == IJavaElement.METHOD && !JdtFlags.isStatic(member)) return false;
-    if (type == IJavaElement.METHOD && ((IMethod) member).isConstructor()) return false;
-    if (type == IJavaElement.TYPE && !JdtFlags.isStatic(member)) return false;
-    if (!declaring.isInterface() && !JdtFlags.isStatic(member)) return false;
-    return true;
-  }
-
-  public static boolean isMoveStaticAvailable(final IMember[] members) throws JavaModelException {
-    for (int index = 0; index < members.length; index++) {
-      if (!isMoveStaticAvailable(members[index])) return false;
-    }
-    return true;
-  }
-
-  public static boolean isMoveStaticAvailable(final JavaTextSelection selection)
-      throws JavaModelException {
-    final IJavaElement element = selection.resolveEnclosingElement();
-    if (!(element instanceof IMember)) return false;
-    return RefactoringAvailabilityTester.isMoveStaticMembersAvailable(
-        new IMember[] {(IMember) element});
-  }
-
-  public static boolean isMoveStaticMembersAvailable(final IMember[] members)
-      throws JavaModelException {
-    if (members == null) return false;
-    if (members.length == 0) return false;
-    if (!isMoveStaticAvailable(members)) return false;
-    if (!isCommonDeclaringType(members)) return false;
-    return true;
   }
 
   public static boolean isPromoteTempAvailable(final ILocalVariable variable)
