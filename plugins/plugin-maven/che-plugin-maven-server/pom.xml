@@ -91,16 +91,6 @@
             <artifactId>che-core-commons-xml</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.che.lib</groupId>
-            <artifactId>org-eclipse-jdt-core-repack</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>org.eclipse.jdt.core</artifactId>
-                    <groupId>org.eclipse.tycho</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>org.eclipse.che.ls.jdt</groupId>
             <artifactId>jdt.ls.extension.api</artifactId>
             <version>${che.ls.jdt.version}</version>

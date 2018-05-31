@@ -36,7 +36,7 @@ import org.eclipse.che.api.project.server.impl.ProjectServiceVcsStatusInjector;
 import org.eclipse.che.api.project.server.impl.WorkspaceProjectSynchronizer;
 import org.eclipse.che.api.search.server.SearchApiModule;
 import org.eclipse.che.api.watcher.server.FileWatcherApiModule;
-import org.eclipse.che.plugin.java.server.inject.JavaModule;
+import org.eclipse.che.plugin.java.inject.JavaModule;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.ui.JavaPlugin;

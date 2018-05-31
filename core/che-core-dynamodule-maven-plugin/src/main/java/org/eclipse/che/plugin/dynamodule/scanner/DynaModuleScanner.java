@@ -65,8 +65,6 @@ public class DynaModuleScanner {
     this.skipResources.add(".*org/apache/lucene/lucene-.*/.*/lucene-.*.jar");
     this.skipResources.add(".*com/google/guava/guava/.*/guava-.*.jar");
     this.skipResources.add(
-        ".*org/eclipse/che/lib/org-eclipse-jdt-core-repack/.*/org-eclipse-jdt-core-repack-.*.jar");
-    this.skipResources.add(
         ".*org/eclipse/che/plugin/org.eclipse.jdt.ui/.*/org.eclipse.jdt.ui-.*.jar");
     this.skipResources.add(".*org/eclipse/lsp4j/org.eclipse.lsp4j/.*/org.eclipse.lsp4j-.*.jar");
     this.skipResources.add(".*org/eclipse/tycho/org.eclipse.osgi/.*/org.eclipse.osgi-.*.jar");
