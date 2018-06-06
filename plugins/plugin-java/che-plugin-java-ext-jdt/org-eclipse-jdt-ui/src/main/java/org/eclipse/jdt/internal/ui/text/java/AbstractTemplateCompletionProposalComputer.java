@@ -22,7 +22,6 @@ import org.eclipse.jdt.internal.ui.text.template.contentassist.TemplateProposal;
 import org.eclipse.jdt.ui.text.java.ContentAssistInvocationContext;
 import org.eclipse.jdt.ui.text.java.IJavaCompletionProposal;
 import org.eclipse.jdt.ui.text.java.IJavaCompletionProposalComputer;
-import org.eclipse.jdt.ui.text.java.JavaContentAssistInvocationContext;
 
 /**
  * An template completion proposal computer can generate template completion proposals from a given

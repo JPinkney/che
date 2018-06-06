@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.ui.text.javadoc;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.internal.ui.text.java.LazyJavaTypeCompletionProposal;
-import org.eclipse.jdt.ui.text.java.JavaContentAssistInvocationContext;
 import org.eclipse.jface.text.IDocument;
 
 /**

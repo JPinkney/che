@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.ui.text.java;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.ui.text.java.CompletionProposalCollector;
 import org.eclipse.jdt.ui.text.java.ContentAssistInvocationContext;
-import org.eclipse.jdt.ui.text.java.JavaContentAssistInvocationContext;
 
 /** @since 3.5 */
 public class JavaAllCompletionProposalComputer extends JavaTypeCompletionProposalComputer {

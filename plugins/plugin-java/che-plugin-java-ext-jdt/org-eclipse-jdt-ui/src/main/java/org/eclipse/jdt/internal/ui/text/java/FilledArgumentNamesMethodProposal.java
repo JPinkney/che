@@ -16,7 +16,6 @@ import static org.eclipse.che.plugin.java.server.dto.DtoServerImpls.RegionImpl;
 import org.eclipse.che.jdt.javaeditor.HasLinkedModel;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
-import org.eclipse.jdt.ui.text.java.JavaContentAssistInvocationContext;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;

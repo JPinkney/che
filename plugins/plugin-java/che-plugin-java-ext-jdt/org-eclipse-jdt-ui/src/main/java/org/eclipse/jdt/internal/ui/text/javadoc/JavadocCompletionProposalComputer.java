@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.ui.text.javadoc;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.internal.ui.text.java.JavaCompletionProposalComputer;
 import org.eclipse.jdt.ui.text.java.CompletionProposalCollector;
-import org.eclipse.jdt.ui.text.java.JavaContentAssistInvocationContext;
 
 /** @since 3.2 */
 public class JavadocCompletionProposalComputer extends JavaCompletionProposalComputer {
