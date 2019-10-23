@@ -12,7 +12,11 @@
 export interface ICheWindow extends Window {
   $: Function;
   jQuery: Function;
-  CodeMirror: Function;
+  Monaco: any;
+  yamlLanguageServer: any;
+  monacoConversion: any;
+  MonacoEnvironment: any;
+  url: any;
   jsyaml: Object;
   jsonlint?: Object;
 }
@@ -24,23 +28,15 @@ const $ = require('jquery');
 windowObject.$ = $;
 windowObject.jQuery = $;
 windowObject.jsyaml = require('js-yaml');
-windowObject.CodeMirror = require('codemirror');
 if (windowObject.jsonlint === undefined) {
   windowObject.jsonlint = require('jsonlint');
 }
-/* tslint:enable */
+windowObject.yamlLanguageServer = require('yaml-language-server');
+windowObject.monacoConversion = require('monaco-languageclient/lib/monaco-converter');
+windowObject.url = require('url');
+windowObject.Monaco = require('monaco-editor-core/esm/vs/editor/editor.main');
 
-import 'codemirror/mode/javascript/javascript';
-import 'codemirror/mode/yaml/yaml';
-import 'codemirror/mode/dockerfile/dockerfile';
-import 'codemirror/addon/lint/lint';
-import 'codemirror/addon/lint/json-lint';
-import 'codemirror/addon/edit/matchbrackets';
-import 'codemirror/addon/edit/closebrackets';
-import 'codemirror/addon/fold/foldcode';
-import 'codemirror/addon/fold/foldgutter';
-import 'codemirror/addon/fold/brace-fold';
-import 'codemirror/addon/selection/active-line';
+/* tslint:enable */
 import 'angular';
 import 'angular-animate';
 import 'angular-cookies';
@@ -63,3 +59,43 @@ import '../node_modules/angular-websocket/dist/angular-websocket.min.js';
 
 // include UD app
 import './app/index.module';
+
+// set up monaco initially
+(window as any).MonacoEnvironment = {
+    getWorkerUrl: function (moduleId, label) {
+        return 'app/editor.worker.module.js';
+    }
+};
+
+const monaco = (window as any).Monaco;
+monaco.editor.defineTheme('che', {
+    base: 'vs', // can also be vs-dark or hc-black
+    inherit: true, // can also be false to completely replace the builtin rules
+    rules: [
+        { token: 'string.yaml', foreground: '000000' },
+        { token: 'comment', foreground: '777777'}
+    ],
+    colors: {
+        'editor.lineHighlightBackground': '#f0f0f0',
+        'editorLineNumber.foreground': '#aaaaaa',
+        'editorGutter.background': '#f8f8f8'
+    }
+});
+
+monaco.editor.setTheme('che');
+
+// tslint:disable-next-line: no-var-requires
+const mod = require('monaco-languages/release/esm/yaml/yaml.js');
+
+const languageID = 'yaml';
+
+// register the YAML language with Monaco
+monaco.languages.register({
+    id: languageID,
+    extensions: ['.yaml', '.yml'],
+    aliases: ['YAML'],
+    mimetypes: ['application/json']
+});
+
+monaco.languages.setMonarchTokensProvider(languageID, mod.language);
+monaco.languages.setLanguageConfiguration(languageID, mod.conf);

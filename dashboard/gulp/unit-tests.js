@@ -23,7 +23,8 @@ var pathSrcHtml = [
 ];
 
 var pathSrcJs = [
-  path.join(conf.paths.tmp, '/serve/app/index.module.js')
+  path.join(conf.paths.tmp, '/serve/app/index.module.js'),
+  path.join(conf.paths.tmp, '/serve/app/editor.worker.module.js')
 ];
 
 function runTests (singleRun, done) {
@@ -46,7 +47,8 @@ function runTests (singleRun, done) {
     singleRun: singleRun,
     autoWatch: !singleRun,
     reporters: reporters,
-    preprocessors: preprocessors
+    preprocessors: preprocessors,
+    debug: true
   };
 
   var server = new karma.Server(localConfig, function(failCount) {
