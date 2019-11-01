@@ -48,7 +48,7 @@ function webpackWrapper(watch, test, callback) {
         },
         {
           test: /\.js$/,
-          include: /node_modules\/(monaco-editor-core|monaco-languages|yaml-language-server|vscode-languageserver|vscode-languageserver-types)/,
+          include: /node_modules\/(monaco-editor-core|monaco-languages|vscode-languageserver|vscode-languageserver-types)/,
           loaders: ['babel-loader']
         },
         {

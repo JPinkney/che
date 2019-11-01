@@ -74,6 +74,7 @@ export class UiMonaco implements ng.IDirective {
     });
 
     editor.layout({height: '600', width: '1000'});
+    editor.getModel().updateOptions({ tabSize: 2 });
 
     this.configOptionsWatcher(editor, UI_MONACO_CONFIG, uiMonaco, $scope);
     this.configNgModelLink(editor, $ctrl, $scope);
