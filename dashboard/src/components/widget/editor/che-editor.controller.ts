@@ -39,7 +39,7 @@ interface IEditorState {
  */
 export class CheEditorController {
 
-  static $inject = ['$timeout', 'cheAPI'];
+  static $inject = ['$timeout'];
 
   $timeout: ng.ITimeoutService;
 
@@ -83,14 +83,11 @@ export class CheEditorController {
    */
   private cursorPos: ICursorPos = { line: 0, column: 0 };
 
-  private cheAPI: CheAPI;
-
   /**
    * Default constructor that is using resource injection
    */
-  constructor($timeout: ng.ITimeoutService, cheAPI: CheAPI) {
+  constructor($timeout: ng.ITimeoutService) {
     this.$timeout = $timeout;
-    this.cheAPI = cheAPI;
   }
 
   $onInit(): void {
@@ -151,19 +148,6 @@ export class CheEditorController {
       }
 
       const yamlService = (window as any).yamlService;
-      this.cheAPI.getDevfile().fetchDevfileSchema().then(jsonSchema => {
-        const schemas = [{
-          uri: 'inmemory:yaml',
-          fileMatch: ['*'],
-          schema: jsonSchema.data
-        }];
-        yamlService.configure({
-          validate: true,
-          schemas,
-          hover: true,
-          completion: true,
-        });
-      });
 
       // validation is not a 'registered' feature like the others, it relies on calling the yamlService
       // directly for validation results when content in the editor has changed

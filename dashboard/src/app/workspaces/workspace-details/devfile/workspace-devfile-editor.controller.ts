@@ -10,6 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 'use strict';
+
+import { CheAPI } from '../../../../components/api/che-api.factory';
+
 /**
  * @ngdoc controller
  * @name workspaces.devfile-editor.controller:WorkspaceDevfileEditorController
@@ -21,7 +24,8 @@ export class WorkspaceDevfileEditorController {
   static $inject = [
     '$log',
     '$scope',
-    '$timeout'
+    '$timeout',
+    'cheAPI'
   ];
   private $log: ng.ILogService;
   private $scope: ng.IScope;
@@ -33,13 +37,16 @@ export class WorkspaceDevfileEditorController {
   private validationErrors: string[] = [];
   private devfileYaml: string;
   private saveTimeoutPromise: ng.IPromise<any>;
+  private cheAPI: CheAPI;
+
   /**
    * Default constructor that is using resource
    */
-  constructor($log: ng.ILogService, $scope: ng.IScope, $timeout: ng.ITimeoutService) {
+  constructor($log: ng.ILogService, $scope: ng.IScope, $timeout: ng.ITimeoutService, cheAPI: CheAPI) {
     this.$log = $log;
     this.$scope = $scope;
     this.$timeout = $timeout;
+    this.cheAPI = cheAPI;
 
     this.$scope.$on('edit-workspace-details', (event: ng.IAngularEvent, attrs: { status: string }) => {
       if (attrs.status === 'cancelled') {
@@ -67,6 +74,20 @@ export class WorkspaceDevfileEditorController {
 
   $onInit(): void {
     this.devfileYaml = jsyaml.safeDump(this.workspaceDevfile);
+    const yamlService = (window as any).yamlService;
+    this.cheAPI.getDevfile().fetchDevfileSchema().then(jsonSchema => {
+      const schemas = [{
+        uri: 'inmemory:yaml',
+        fileMatch: ['*'],
+        schema: jsonSchema.data
+      }];
+      yamlService.configure({
+        validate: true,
+        schemas,
+        hover: true,
+        completion: true,
+      });
+    });
   }
 
   validate() {
