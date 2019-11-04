@@ -150,7 +150,7 @@ export class CheEditorController {
         );
       }
 
-      const yamlService = this.createYAMLService();
+      const yamlService = (window as any).yamlService;
       this.cheAPI.getDevfile().fetchDevfileSchema().then(jsonSchema => {
         const schemas = [{
           uri: 'inmemory:yaml',
@@ -188,27 +188,6 @@ export class CheEditorController {
       this.registerYAMLDocumentSymbols(LANGUAGE_ID, monaco, p2m, createDocument, yamlService);
       this.registerYAMLHover(LANGUAGE_ID, monaco, m2p, p2m, createDocument, yamlService);
 
-    }
-
-    createYAMLService() {
-      var resolveSchema = function (url: string): Promise<string> {
-        const promise = new Promise<string>((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            xhr.onload = () => resolve(xhr.responseText);
-            xhr.onerror = () => reject(xhr.statusText);
-            xhr.open('GET', url, true);
-            xhr.send();
-            console.log('resolving schema ' + url);
-        });
-        return promise;
-      };
-
-      const workspaceContext = {
-        resolveRelativePath: (relativePath, resource) => (window as any).url.resolve(resource, relativePath),
-      };
-
-      const yamlService = (window as any).yamlLanguageServer.getLanguageService(resolveSchema, workspaceContext, []);
-      return yamlService;
     }
 
     registerYAMLCompletion(languageID, monaco, m2p, p2m, createDocument, yamlService) {
@@ -273,7 +252,7 @@ export class CheEditorController {
           cleanDiagnostics();
           return;
         }
-        yamlService.doValidation(document, true).then((diagnostics) => {
+        yamlService.doValidation(document, false).then((diagnostics) => {
           const markers = p2m.asDiagnostics(diagnostics);
           monaco.editor.setModelMarkers(getModel(), 'default', markers);
         });

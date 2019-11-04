@@ -30,18 +30,9 @@ export class WorkspaceDevfileEditorController {
   private isActive: boolean;
   private workspaceDevfile: che.IWorkspaceDevfile;
   private workspaceDevfileOnChange: Function;
-
-  private editorOptions: {
-    lineWrapping: boolean,
-    lineNumbers: boolean,
-    matchBrackets: boolean,
-    mode: string,
-    onLoad: Function
-  };
   private validationErrors: string[] = [];
   private devfileYaml: string;
   private saveTimeoutPromise: ng.IPromise<any>;
-
   /**
    * Default constructor that is using resource
    */
@@ -85,9 +76,6 @@ export class WorkspaceDevfileEditorController {
     try {
       devfile = jsyaml.safeLoad(this.devfileYaml);
     } catch (e) {
-      if (e.name === 'YAMLException') {
-        this.validationErrors = [e.message];
-      }
       if (this.validationErrors.length === 0) {
         this.validationErrors = ['Devfile is invalid.'];
       }

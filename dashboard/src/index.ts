@@ -31,12 +31,12 @@ windowObject.jsyaml = require('js-yaml');
 if (windowObject.jsonlint === undefined) {
   windowObject.jsonlint = require('jsonlint');
 }
-windowObject.yamlLanguageServer = require('yaml-language-server');
 windowObject.monacoConversion = require('monaco-languageclient/lib/monaco-converter');
 windowObject.url = require('url');
 windowObject.Monaco = require('monaco-editor-core/esm/vs/editor/editor.main');
 
 /* tslint:enable */
+import './monaco-env-setup';
 import 'angular';
 import 'angular-animate';
 import 'angular-cookies';
@@ -60,42 +60,3 @@ import '../node_modules/angular-websocket/dist/angular-websocket.min.js';
 // include UD app
 import './app/index.module';
 
-// set up monaco initially
-(window as any).MonacoEnvironment = {
-    getWorkerUrl: function (moduleId, label) {
-        return 'app/editor.worker.module.js';
-    }
-};
-
-const monaco = (window as any).Monaco;
-monaco.editor.defineTheme('che', {
-    base: 'vs', // can also be vs-dark or hc-black
-    inherit: true, // can also be false to completely replace the builtin rules
-    rules: [
-        { token: 'string.yaml', foreground: '000000' },
-        { token: 'comment', foreground: '777777'}
-    ],
-    colors: {
-        'editor.lineHighlightBackground': '#f0f0f0',
-        'editorLineNumber.foreground': '#aaaaaa',
-        'editorGutter.background': '#f8f8f8'
-    }
-});
-
-monaco.editor.setTheme('che');
-
-// tslint:disable-next-line: no-var-requires
-const mod = require('monaco-languages/release/esm/yaml/yaml.js');
-
-const languageID = 'yaml';
-
-// register the YAML language with Monaco
-monaco.languages.register({
-    id: languageID,
-    extensions: ['.yaml', '.yml'],
-    aliases: ['YAML'],
-    mimetypes: ['application/json']
-});
-
-monaco.languages.setMonarchTokensProvider(languageID, mod.language);
-monaco.languages.setLanguageConfiguration(languageID, mod.conf);
