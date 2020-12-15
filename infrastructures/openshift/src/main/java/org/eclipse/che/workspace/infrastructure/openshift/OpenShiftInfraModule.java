@@ -45,6 +45,7 @@ import org.eclipse.che.workspace.infrastructure.kubernetes.KubernetesClientTermi
 import org.eclipse.che.workspace.infrastructure.kubernetes.KubernetesEnvironmentProvisioner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.StartSynchronizerFactory;
 import org.eclipse.che.workspace.infrastructure.kubernetes.api.server.KubernetesNamespaceService;
+import org.eclipse.che.workspace.infrastructure.kubernetes.api.server.KubernetesVersionService;
 import org.eclipse.che.workspace.infrastructure.kubernetes.cache.jpa.JpaKubernetesRuntimeCacheModule;
 import org.eclipse.che.workspace.infrastructure.kubernetes.devfile.DockerimageComponentToWorkspaceApplier;
 import org.eclipse.che.workspace.infrastructure.kubernetes.devfile.KubernetesComponentToWorkspaceApplier;
@@ -86,6 +87,7 @@ import org.eclipse.che.workspace.infrastructure.kubernetes.wsplugins.PluginBroke
 import org.eclipse.che.workspace.infrastructure.kubernetes.wsplugins.SidecarToolingProvisioner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.wsplugins.brokerphases.BrokerEnvironmentFactory;
 import org.eclipse.che.workspace.infrastructure.kubernetes.wsplugins.events.BrokerService;
+import org.eclipse.che.workspace.infrastructure.openshift.api.OpenShiftVersionService;
 import org.eclipse.che.workspace.infrastructure.openshift.devfile.OpenshiftComponentToWorkspaceApplier;
 import org.eclipse.che.workspace.infrastructure.openshift.environment.OpenShiftEnvironment;
 import org.eclipse.che.workspace.infrastructure.openshift.environment.OpenShiftEnvironmentFactory;
@@ -111,6 +113,8 @@ public class OpenShiftInfraModule extends AbstractModule {
     workspaceAttributeValidators.addBinding().to(AsyncStorageModeValidator.class);
 
     bind(KubernetesNamespaceService.class);
+    bind(KubernetesVersionService.class);
+    bind(OpenShiftVersionService.class);
 
     MapBinder<String, InternalEnvironmentFactory> factories =
         MapBinder.newMapBinder(binder(), String.class, InternalEnvironmentFactory.class);

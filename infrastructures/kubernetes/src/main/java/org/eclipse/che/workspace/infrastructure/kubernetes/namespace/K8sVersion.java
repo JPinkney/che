@@ -147,4 +147,8 @@ public class K8sVersion {
     versionString = versionString.replaceAll("\\D+", "");
     return Integer.parseInt(versionString);
   }
+
+  public VersionInfo version() {
+    return this.versionInfo;
+  }
 }

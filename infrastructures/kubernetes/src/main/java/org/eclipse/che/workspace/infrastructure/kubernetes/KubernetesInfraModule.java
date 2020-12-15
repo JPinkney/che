@@ -40,6 +40,7 @@ import org.eclipse.che.api.workspace.server.spi.provision.env.EnvVarProvider;
 import org.eclipse.che.api.workspace.server.wsplugins.ChePluginsApplier;
 import org.eclipse.che.api.workspace.shared.Constants;
 import org.eclipse.che.workspace.infrastructure.kubernetes.api.server.KubernetesNamespaceService;
+import org.eclipse.che.workspace.infrastructure.kubernetes.api.server.KubernetesVersionService;
 import org.eclipse.che.workspace.infrastructure.kubernetes.cache.jpa.JpaKubernetesRuntimeCacheModule;
 import org.eclipse.che.workspace.infrastructure.kubernetes.devfile.DockerimageComponentToWorkspaceApplier;
 import org.eclipse.che.workspace.infrastructure.kubernetes.devfile.KubernetesComponentToWorkspaceApplier;
@@ -99,6 +100,7 @@ public class KubernetesInfraModule extends AbstractModule {
     workspaceAttributeValidators.addBinding().to(AsyncStorageModeValidator.class);
 
     bind(KubernetesNamespaceService.class);
+    bind(KubernetesVersionService.class);
 
     MapBinder<String, InternalEnvironmentFactory> factories =
         MapBinder.newMapBinder(binder(), String.class, InternalEnvironmentFactory.class);
